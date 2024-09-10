@@ -18,9 +18,8 @@ class Admin
     {
 
         if (!Auth::guard('admin')->check()) {
-            return redirect()->route('login_form')->with('error', 'سجل دخولك اولا');
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
-
 
         return $next($request);
     }

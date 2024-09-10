@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\Opportunity;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -50,7 +51,7 @@ class NewsController extends Controller
                     'short_description' => $request->short_description,
                     'long_description' => $request->long_description,
                     'news_image' => $filePath,
-                    'created_at' => now(),
+                    'created_at' => Carbon::now('Asia/Riyadh'),
                 ]);
 
                 Session()->flash('error', 'تم إضافة خبر بنجاح');
@@ -116,6 +117,7 @@ class NewsController extends Controller
                     'short_description' => $request->short_description,
                     'long_description' => $request->long_description,
                     'news_image' => $filePath,
+                    'updated_at' => Carbon::now('Asia/Riyadh'),
                 ]);
 
                 Session()->flash('error', 'تم تعديل خبر بنجاح');
@@ -129,7 +131,7 @@ class NewsController extends Controller
                 'news_title' => $request->news_title,
                 'short_description' => $request->short_description,
                 'long_description' => $request->long_description,
-                'created_at' => now(),
+                'updated_at' => Carbon::now('Asia/Riyadh'),
             ]);
             Session()->flash('error', 'تم تعديل خبر بنجاح');
             return redirect()->route('news');

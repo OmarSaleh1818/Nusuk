@@ -19,7 +19,7 @@ class UpdateUserOpportunityStatuses extends Command
 
     public function handle()
     {
-        $now = Carbon::now();
+        $now = Carbon::now('Asia/Riyadh');
 
         // Update status from 5 to 6 where date_from has passed
         DB::table('user_opportunity_statuses')

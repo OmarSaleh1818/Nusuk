@@ -11,6 +11,7 @@ use App\Models\OpportunityStatus;
 use App\Models\OrganizationScore;
 use App\Models\Question;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -61,7 +62,7 @@ class OpportunitiesController extends Controller
             'date_to' => $request->date_to,
             'organization_number' => $request->organization_number,
             'percentage' => $request->percentage,
-            'created_at' => now(),
+            'created_at' => Carbon::now('Asia/Riyadh'),
         ]);
 
         // Insert questions and answers
@@ -170,6 +171,7 @@ class OpportunitiesController extends Controller
             'date_to' => $request->date_to,
             'organization_number' => $request->organization_number,
             'percentage' => $request->percentage,
+            'updated_at' => Carbon::now('Asia/Riyadh'),
         ]);
 
         $questionIds = $request->input('question_ids');
