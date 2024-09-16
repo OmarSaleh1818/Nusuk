@@ -1,24 +1,29 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Opportunity;
 use App\Models\User;
+use App\Models\Opportunity;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules;
+use Carbon\Carbon;
 use App\Models\Apout;
 use App\Models\LocalType;
 use App\Models\TypeDescription;
 use App\Models\LocalDescription;
 use App\Models\Financial;
 use App\Models\Slide;
-use App\Models\ServicesSlide;
 use App\Models\LocalTarget;
+use App\Models\LocalServices;
 use App\Models\Stage;
 use App\Models\Indicator;
 use App\Models\ServiceImplemented;
 use App\Models\BenefitSatisfaction;
-use App\Models\LocalServices;
+use App\Models\ServicesSlide;
 use App\Models\TargetService;
 use App\Models\Nationality;
 use App\Models\Gender;
@@ -28,92 +33,141 @@ use App\Models\Contract;
 use App\Models\Degree;
 use App\Models\Operation;
 use App\Models\According;
-use App\Models\StaffInformation;
-use App\Models\StaffDegree;
 use App\Models\StaffOther;
 use App\Models\StaffRepresent;
-use App\Models\Volunteer;
-use App\Models\VolunteerDegree;
-use App\Models\VolunteerOperation;
-use App\Models\VolunteerContract;
-use App\Models\VolunteerRegion;
+use App\Models\StaffInformation;
+use App\Models\StaffDegree;
 use App\Models\VolunteerInformation;
 use App\Models\ContractVolunteer;
 
 
 
-class UserManagementController extends Controller
+class OrganizationUsersController extends Controller
 {
     
-    public function UserManagement()
+    public function OrganizationUserManagement($id)
+    {
+        $organization_users = User::where('user_id', $id)->get();
+        $opportunities = Opportunity::all();
+        return response()->json([
+            'organization_users' => $organization_users,
+            'opportunities' => $opportunities,
+            'message' => 'Data fetched successfully',
+            'status' => 200,
+        ]);
+    }
+
+    public function OrganizationUserBulkAction(Request $request)
+    {
+        $userIds = $request->input('user_id');
+        $action = $request->input('action');
+
+        if (!$userIds) {
+            return response()->json([
+                'message' => 'لا يوجد مستخدم محدد',
+                'status' => 400
+            ], 400);
+        }
+
+        switch ($action) {
+            case 'stop':
+                User::whereIn('id', $userIds)->update(['status' => 0]);
+                break;
+            case 'delete':
+                // User::whereIn('id', $userIds)->delete();
+                break;
+            case 'active':
+                User::whereIn('id', $userIds)->update(['status' => 1]);
+                break;
+            default:
+                return response()->json([
+                    'message' => 'إجراء غير صالح',
+                    'status' => 400
+                ], 400);
+        }
+
+        return response()->json([
+            'message' => 'تم تنفيذ طلبك',
+            'status' => 200
+        ]);
+    }
+
+    public function OrganizationAddUser($id)
     {
         $opportunities = Opportunity::all();
-        $users = User::where('user_permission', 1)->orderBy('id', 'desc')->get();
         return response()->json([
+            'id' => $id,
             'opportunities' => $opportunities,
-            'users' => $users,
-            'message' => 'Users fetched successfully'
-        ], 200);
+            'message' => 'Data fetched successfully',
+            'status' => 200
+        ]);
     }
 
-    public function UserBulkAction(Request $request)
+    public function OrganizationStoreUser(Request $request)
     {
-         // Get selected user IDs and the action to perform
-         $userIds = $request->input('user_id');
-         $action = $request->input('action');
- 
-         // Validate if user IDs are provided
-         if (!$userIds) {
-             return response()->json([
-                 'success' => false,
-                 'message' => 'لا يوجد مستخدم محدد'
-             ], 400); // 400 Bad Request
-         }
- 
-         // Perform the requested action
-         if ($action == 'stop') {
-            
-             User::whereIn('id', $userIds)->update(['status' => 0]);
-         } elseif ($action == 'delete') {
+        $validator = Validator::make($request->all(), [
+            'contact_name' => 'required',
+            'email' => 'required|email|unique:users',
+            'contact_job_title' => 'required',
+            'contact_mobile' => 'required',
+            'name' => 'required',
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'contact_name.required' => 'اسم المطلوب',
+            'email.required' => 'الايميل المطلوب',
+            'email.email' => 'يجب أن يكون الايميل صالحًا',
+            'email.unique' => 'هذا الايميل مستخدم بالفعل',
+            'contact_job_title.required' => 'المسمى الوظيفي المطلوب',
+            'password.required' => 'كلمة المرور المطلوب',
+            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق',
+        ]);
 
-            // User::whereIn('id', $userIds)->delete();
-         } elseif ($action == 'active') {
-             User::whereIn('id', $userIds)->update(['status' => 1]);
-         } else {
-             return response()->json([
-                 'success' => false,
-                 'message' => 'إجراء غير صالح'
-             ], 400); // 400 Bad Request
-         }
- 
-         // Return success response
-         return response()->json([
-             'success' => true,
-             'message' => 'تم تنفيذ طلبك'
-         ], 200); // 200 OK
-    }
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+                'status' => 422
+            ], 422);
+        }
 
-    public function UserEye($id)
-    {
-        $user = User::where('id', $id)->first();
+        $user = User::create([
+            'user_id' => $request->user_id,
+            'contact_name' => $request->contact_name,
+            'email' => $request->email,
+            'contact_mobile' => $request->contact_mobile,
+            'name' => $request->name,
+            'contact_job_title' => $request->contact_job_title,
+            'user_permission' => 2,
+            'password' => Hash::make($request->password),
+        ]);
+
         return response()->json([
+            'message' => 'تم إضافة مستخدم بنجاح',
             'user' => $user,
-            'message' => 'User fetched successfully'
-        ], 200);
+            'status' => 201
+        ], 201);
     }
 
-    public function AdminOrganizationBasic($id)
+    public function OrganizationUserBasic($id)
     {
         $basic = User::where('id', $id)->first();
         $opportunities = Opportunity::all();
+
+        if (!$basic) {
+            return response()->json([
+                'message' => 'User not found',
+                'status' => 404
+            ], 404);
+        }
+
         return response()->json([
             'basic' => $basic,
             'opportunities' => $opportunities,
-            'message' => 'Basic fetched successfully'
+            'status' => 200
         ], 200);
     }
 
-    public function AdminOrganizationAbout($id)
+    public function OrganizationUserAbout($id)
     {
         $about = Apout::where('user_id', $id)->first();
         $types = LocalType::all();
@@ -162,18 +216,27 @@ class UserManagementController extends Controller
         }
     }
 
-    public function AdminOrganizationFinancial($id)
+    public function OrganizationUserFinancial($id)
     {
         $financial = Financial::where('user_id', $id)->first();
         $opportunities = Opportunity::all();
-        return response()->json([
-            'financial' => $financial,
-            'opportunities' => $opportunities,
-            'message' => 'Financial fetched successfully'
-        ], 200);
+        
+        if ($financial) {
+            return response()->json([
+                'financial' => $financial,
+                'opportunities' => $opportunities,
+                'message' => 'Financial data fetched successfully',
+                'status' => 200
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Financial data not found',
+                'status' => 404
+            ]);
+        }
     }
 
-    public function AdminOrganizationServices($id)
+    public function OrganizationUserServices($id)
     {
         // Get the slides data
         $slides = Slide::all();
@@ -272,7 +335,7 @@ class UserManagementController extends Controller
         ]);
     }
 
-    public function AdminOrganizationStaff($id)
+    public function OrganizationUserStaff($id)
     {
         $nationalities = Nationality::all();
         $genders = Gender::all();
@@ -342,7 +405,7 @@ class UserManagementController extends Controller
         }
     }
 
-    public function AdminOrganizationVolunteers($id)
+    public function OrganizationUserVolunteers($id)
     {
         $nationalities = Nationality::all();
         $genders = Gender::all();
@@ -368,8 +431,6 @@ class UserManagementController extends Controller
             'status' => 200
         ]);
     }
-
-    
 
 
 }

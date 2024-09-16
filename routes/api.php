@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\User\FinancialController;
 use App\Http\Controllers\Api\User\ServicesController;
 use App\Http\Controllers\Api\User\StaffController;
 use App\Http\Controllers\Api\User\VolunteerController;
+use App\Http\Controllers\Api\User\OrganizationUsersController;
 use App\Http\Controllers\Api\User\OpportunityController;
 use App\Http\Controllers\Api\Admin\AuthAdminController;
 use App\Http\Controllers\Api\Admin\NewsController;
@@ -112,6 +113,20 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         Route::get('/organization/volunteers', [VolunteerController::class, 'OrganizationVolunteers']);
         Route::post('/organization/volunteer/store', [VolunteerController::class, 'VolunteerStore']);
 
+        /* -------------------- Organization User -------------------------*/
+        Route::get('/organization/user/management/{id}', [OrganizationUsersController::class, 'OrganizationUserManagement']);
+        Route::post('/organization/user/bulkAction', [OrganizationUsersController::class, 'OrganizationUserBulkAction']);
+        Route::get('/organization/add/user/{id}', [OrganizationUsersController::class, 'OrganizationAddUser']);
+        Route::post('/organization/store/user', [OrganizationUsersController::class, 'OrganizationStoreUser']);
+
+        Route::get('/organization/user/basic/{id}', [OrganizationUsersController::class, 'OrganizationUserBasic']);
+        Route::get('/organization/user/about/{id}', [OrganizationUsersController::class, 'OrganizationUserAbout']);
+        Route::get('/organization/user/financial/{id}', [OrganizationUsersController::class, 'OrganizationUserFinancial']);
+        Route::get('/organization/user/services/{id}', [OrganizationUsersController::class, 'OrganizationUserServices']);
+        Route::get('/organization/user/staff/{id}', [OrganizationUsersController::class, 'OrganizationUserStaff']);
+        Route::get('/organization/user/volunteers/{id}', [OrganizationUsersController::class, 'OrganizationUserVolunteers']);
+
+        /* -------------------- End Organization User -------------------------*/
 
         // -------------------- Organization Opportunity -------------------------
         Route::get('/organization/opportunity/{id}', [OpportunityController::class, 'OrganizationOpportunity']);
