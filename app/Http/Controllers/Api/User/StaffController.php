@@ -35,7 +35,10 @@ class StaffController extends Controller
         $accordings = According::all();
         $staffOthers = StaffOther::where('user_id', $user_id)->first();
         $staffRepresent = StaffRepresent::where('user_id', $user_id)->first();
-        $existingData = StaffInformation::where('user_id', $user_id)->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id']);
+        $existingData = StaffInformation::where('user_id', $user_id)
+                    ->where('nationality_id', 1) 
+                    ->get()
+                    ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id']);
         $opportunities = Opportunity::all();
     
         $staffDegreeData = [];
@@ -79,6 +82,30 @@ class StaffController extends Controller
             'existingData' => $existingData,
             'opportunities' => $opportunities,
             'staffDegreeData' => $staffDegreeData,
+            'message' => 'Data fetched successfully',
+            'status' => 200
+        ]);
+    }
+
+    public function OrganizationStaffSaudi($id)
+    {
+        $user_id = Auth::user()->id;
+        $nationalities = Nationality::all();
+        $saudiData = StaffInformation::where('user_id', $user_id)
+                    ->where('nationality_id', $id) 
+                    ->get()
+                    ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id']);
+
+        if ($saudiData->isEmpty()) {
+            return response()->json([
+                'message' => 'No data found for the given nationality',
+                'status' => 404
+            ]);
+        }
+
+        return response()->json([
+            'nationalities' => $nationalities,
+            'saudiData' => $saudiData,
             'message' => 'Data fetched successfully',
             'status' => 200
         ]);

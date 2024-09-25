@@ -46,6 +46,31 @@ class VolunteerController extends Controller
         ]);
     }
 
+    public function OrganizationVolunteersSaudi($id)
+    {
+        $user_id = Auth::id();
+        $nationalities = Nationality::all();
+        $saudiData = VolunteerInformation::where('user_id', $user_id)
+            ->where('nationality_id', $id) 
+            ->get()
+            ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id', 'according_id']);
+
+        if ($saudiData->isEmpty()) {
+            return response()->json([
+                'message' => 'No data found for the given nationality',
+                'status' => 404
+            ]);
+        }
+
+        return response()->json([
+            'nationalities' => $nationalities,
+            'saudiData' => $saudiData,
+            'message' => 'Saudi Volunteers fetched successfully',
+            'status' => 200
+        ]);
+    }
+
+
     public function VolunteerStore(Request $request)
     {
         $data = $request->all();

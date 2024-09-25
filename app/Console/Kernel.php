@@ -12,6 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\UpdateUserOpportunityStatuses::class,
+        Commands\UpdateExpiredPartnerships::class, 
     ];
 
     protected function schedule(Schedule $schedule): void
@@ -19,6 +20,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('user-opportunity-status:update')->everyMinute();
 
         // $schedule->command('inspire')->hourly();
+        // Schedule the new partnerships status update command
+        $schedule->command('partnerships:update-expired')->daily();
     }
 
     /**

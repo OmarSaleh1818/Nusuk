@@ -11,6 +11,9 @@ use App\Http\Controllers\Api\User\StaffController;
 use App\Http\Controllers\Api\User\VolunteerController;
 use App\Http\Controllers\Api\User\OrganizationUsersController;
 use App\Http\Controllers\Api\User\OpportunityController;
+use App\Http\Controllers\Api\User\PartnershipsController;
+use App\Http\Controllers\Api\User\AppreciationController;
+use App\Http\Controllers\Api\User\GovernanceController;
 use App\Http\Controllers\Api\Admin\AuthAdminController;
 use App\Http\Controllers\Api\Admin\NewsController;
 use App\Http\Controllers\Api\Admin\UserManagementController;
@@ -108,9 +111,11 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         Route::post('/organization/services/store', [ServicesController::class, 'ServicesStore']);
 
         Route::get('/organization/staff', [StaffController::class, 'OrganizationStaff']);
+        Route::get('/organization/staff/saudi/{id}', [StaffController::class, 'OrganizationStaffSaudi']);
         Route::post('/organization/staff/store', [StaffController::class, 'StaffStore']);
 
         Route::get('/organization/volunteers', [VolunteerController::class, 'OrganizationVolunteers']);
+        Route::get('/organization/volunteers/saudi/{id}', [VolunteerController::class, 'OrganizationVolunteersSaudi']);
         Route::post('/organization/volunteer/store', [VolunteerController::class, 'VolunteerStore']);
 
         /* -------------------- Organization User -------------------------*/
@@ -128,7 +133,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
         /* -------------------- End Organization User -------------------------*/
 
-        // -------------------- Organization Opportunity -------------------------
+        // -------------------- Organization Opportunity -------------------------*/
         Route::get('/organization/opportunity/{id}', [OpportunityController::class, 'OrganizationOpportunity']);
         Route::get('/organization/opportunity/eye/{id}', [OpportunityController::class, 'OrganizationOpportunityEye']);
         Route::post('/organization/update/status', [OpportunityController::class, 'UpdateStatus']);
@@ -136,8 +141,28 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         Route::post('/organization/answer/{id}', [OpportunityController::class, 'OrganizationAnswer']);
         Route::post('/organization/answer/store/{id}', [OpportunityController::class, 'OrganizationAnswerStore']);
         Route::get('/organization/score/{id}', [OpportunityController::class, 'OrganizationScore']);
-        
-        // -------------------- End Organization Opportunity -------------------------
+        // -------------------- End Organization Opportunity -------------------------*/
+
+        // -------------------- PartnerShips -------------------------*/
+        Route::get('/organization/partnership/view', [PartnershipsController::class, 'PartnershipsView']);
+        Route::post('/organization/partnership/store', [PartnershipsController::class, 'PartnershipsStore']);
+        Route::get('/organization/partnership/edit/{id}', [PartnershipsController::class, 'PartnershipsEdit']);
+        Route::post('/organization/partnership/update/{id}', [PartnershipsController::class, 'PartnershipsUpdate']);
+        Route::get('/organization/partnership/delete/{id}', [PartnershipsController::class, 'PartnershipsDelete']);
+        // -------------------- End PartnerShips -------------------------*/
+
+        // -------------------- Appreciations -------------------------*/
+        Route::get('/organization/appreciation/view', [AppreciationController::class, 'AppreciationView']);
+        Route::post('/organization/appreciation/store', [AppreciationController::class, 'AppreciationStore']);
+        Route::get('/organization/appreciation/edit/{id}', [AppreciationController::class, 'AppreciationEdit']);
+        Route::post('/organization/appreciation/update/{id}', [AppreciationController::class, 'AppreciationUpdate']);
+        Route::get('/organization/appreciation/delete/{id}', [AppreciationController::class, 'AppreciationDelete']);
+        // -------------------- End Appreciations -------------------------*/
+
+        // -------------------- Governance -------------------------*/
+        Route::get('/organization/governance/view', [GovernanceController::class, 'GovernanceView']);
+        Route::post('/organization/governance/store', [GovernanceController::class, 'GovernanceStore']);
+        // -------------------- End Governance -------------------------*/
     });
 
 
