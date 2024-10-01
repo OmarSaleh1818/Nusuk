@@ -19,7 +19,6 @@ class AppreciationController extends Controller
         $appreciation = Appreciations::where('user_id', $user_id)
                                 ->with('status') 
                                 ->get();
-        $status = partnershipsStatus::all();
 
         if ($appreciation->isEmpty()) {
             return response()->json([
@@ -29,10 +28,9 @@ class AppreciationController extends Controller
         }
 
         return response()->json([
-            'appreciation' => $appreciation,
-            'statuses' => $status,
+            'succeed' => true,
             'message' => 'Appreciations fetched successfully',
-            'status' => 200,
+            'data' => $appreciation,
         ], 200);
     }
 
@@ -65,9 +63,9 @@ class AppreciationController extends Controller
 
             // Return a JSON response indicating success
             return response()->json([
+                'succeed' => true,
                 'message' => 'Appreciation created successfully',
-                'appreciations' => $appreciation,
-                'status' => 201,
+                'data' => $appreciation,
             ], 201);
 
         } catch (\Exception $e) {
@@ -93,9 +91,9 @@ class AppreciationController extends Controller
         }
 
         return response()->json([
-            'appreciation' => $appreciation,
+            'succeed' => true,
             'message' => 'Appreciation fetched successfully',
-            'status' => 200
+            'data' => $appreciation,
         ]);
     }
 
@@ -130,9 +128,9 @@ class AppreciationController extends Controller
             ]);
 
             return response()->json([
+                'succeed' => true,
                 'message' => 'Appreciation updated successfully',
-                'appreciation' => $appreciation,
-                'status' => 200,
+                'data' => $appreciation,
             ], 200);
 
         } catch (\Exception $e) {
@@ -159,8 +157,8 @@ class AppreciationController extends Controller
             $appreciation->delete();
 
             return response()->json([
+                'succeed' => true,
                 'message' => 'Appreciation deleted successfully',
-                'status' => 200,
             ], 200);
 
         } catch (\Exception $e) {

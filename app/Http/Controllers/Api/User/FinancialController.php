@@ -15,13 +15,19 @@ class FinancialController extends Controller
     {
         $user_id = Auth::user()->id;
         $financial = Financial::where('user_id', $user_id)->first();
-        $opportunities = Opportunity::all();
-        return response()->json([
-            'financial data' => $financial,
-            'opportunities' => $opportunities,
+        if($financial){
+            return response()->json([
+            'succeed' => true,
             'message' => 'Financial data fetched successfully',
-            'status' => 200,
+            'financial data' => $financial,
         ]);
+        }else{
+            return response()->json([
+                'message' => 'Financial data not found',
+                'succeed' => false,
+            ]);     
+        }
+        
     }
 
     public function FinancialStore(Request $request)
@@ -34,9 +40,9 @@ class FinancialController extends Controller
             $financial = Financial::create(['user_id' => $user_id] + $request->all());
         }
         return response()->json([
-            'financial data' => $financial,
+            'succeed' => true,
             'message' => 'Financial data updated successfully',
-            'status' => 200,
+            'financial data' => $financial,
         ]);
     }
 

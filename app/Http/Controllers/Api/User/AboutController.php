@@ -21,18 +21,17 @@ class AboutController extends Controller
     {
         $user_id = Auth::user()->id;
         $basic = User::where('id', $user_id)->first();
-        $opportunities = Opportunity::all();
         if($basic){
             return response()->json([
-                'basic data' => $basic,
-                'opportunities' => $opportunities,
+                'succeed' => true,
                 'message' => 'Basic data fetched successfully',
-                'status' => 200,
+                'data' => $basic,
             ]);
         }else{
             return response()->json([
                 'message' => 'Basic data not found',
                 'status' => 404,
+                'succeed' => false,
             ]);
         }
     }
@@ -44,14 +43,32 @@ class AboutController extends Controller
         if($basic){
             $basic->update($request->all());
             return response()->json([
-                'basic data' => $basic,
+                'succeed' => true,
                 'message' => 'Basic data updated successfully',
-                'status' => 200,
+                'basic data' => $basic,
             ]);
         }else{
             return response()->json([
                 'message' => 'Basic data not found',
-                'status' => 404,
+                'succeed' => false,
+            ]);
+        }
+    }
+
+    public function OrganizationSpecializedData()
+    {
+        $user_id = Auth::user()->id;
+        $about = Apout::where('user_id', $user_id)->first();
+        if($about){
+            return response()->json([
+                'succeed' => true,
+                'message' => 'Specialized Data fetched successfully', 
+                'data' => $about,
+            ]);
+        }else{
+            return response()->json([
+                'message' => 'Specialized Data not found',
+                'succeed' => false,
             ]);
         }
     }
@@ -59,10 +76,8 @@ class AboutController extends Controller
     public function OrganizationAbout()
     {
         $user_id = Auth::user()->id;
-        $about = Apout::where('user_id', $user_id)->first();
         $types = LocalType::all();
-        $opportunities = Opportunity::all();
-        $response = [];
+        $data = [];
 
         foreach ($types as $type) {
             // For each type, retrieve related descriptions
@@ -83,30 +98,27 @@ class AboutController extends Controller
             }
 
             // Add the type and its descriptions to the response array
-            $response[] = [
+            $data[] = [
                 'type_id' => $type->id,
                 'type_name' => $type->type_name,
                 'descriptions' => $descriptionData
             ];
         }
-        if($about){
+        if($data){
             return response()->json([
-                'about data' => $about,
-                'types' => $types,
-                'opportunities' => $opportunities,
-                'response' => $response,
+                'succeed' => true,
                 'message' => 'About data fetched successfully', 
-                'status' => 200,
+                'data' => $data,
             ]);
         }else{
             return response()->json([
                 'message' => 'About data not found',
-                'status' => 404,
+                'succeed' => false,
             ]);
         }
     }
 
-    public function AboutStore(Request $request)
+    public function SpecializedDataStore(Request $request)
     {
         $user_id = Auth::user()->id;
         // Validate the request
@@ -128,6 +140,24 @@ class AboutController extends Controller
             ]
         );
 
+        if($about){
+            return response()->json([
+                'succeed' => true,
+                'message' => 'Specialized Data updated successfully',
+                'data' => $about, 
+            ]);
+        }else{
+            return response()->json([
+                'message' => 'Specialized Data not found',
+                'succeed' => false,
+            ]);     
+        }
+    }
+
+    public function AboutStore(Request $request)
+    {
+        $user_id = Auth::user()->id;
+
         // Handle the TypeDescription associations (delete existing and insert new)
         TypeDescription::where('user_id', $user_id)->delete();
 
@@ -140,16 +170,19 @@ class AboutController extends Controller
             }
         }
 
-        if($about){
+        // Fetch the updated data along with associated TypeDescriptions
+        $data =  TypeDescription::where('user_id', $user_id)->get();
+
+        if($data) {
             return response()->json([
-                'about data' => $about, 
+                'succeed' => true,
                 'message' => 'About data updated successfully',
-                'status' => 200,
+                'data' => $data,
             ]);
-        }else{
+        } else {
             return response()->json([
                 'message' => 'About data not found',
-                'status' => 404,
+                'succeed' => false,
             ]);     
         }
     }

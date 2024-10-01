@@ -17,39 +17,10 @@ use Illuminate\Support\Facades\DB;
 
 class VolunteerController extends Controller
 {
-    
-    public function OrganizationVolunteers()
-    {
-        $nationalities = Nationality::all();
-        $genders = Gender::all();
-        $ages = Age::all();
-        $regions = Region::all();
-        $contracts = ContractVolunteer::all();
-        $accordings = According::all();
-    
-        // Fetch existing volunteer information grouped by necessary fields
-        $user_id = Auth::id();
-        $existingData = VolunteerInformation::where('user_id', $user_id)
-            ->get()
-            ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id', 'according_id']);
-    
-        return response()->json([
-            'nationalities' => $nationalities,
-            'genders' => $genders,
-            'ages' => $ages,
-            'regions' => $regions,
-            'contracts' => $contracts,
-            'accordings' => $accordings,
-            'existingData' => $existingData,
-            'message' => 'Volunteers fetched successfully',
-            'status' => 200
-        ]);
-    }
 
     public function OrganizationVolunteersSaudi($id)
     {
         $user_id = Auth::id();
-        $nationalities = Nationality::all();
         $saudiData = VolunteerInformation::where('user_id', $user_id)
             ->where('nationality_id', $id) 
             ->get()
@@ -63,10 +34,9 @@ class VolunteerController extends Controller
         }
 
         return response()->json([
-            'nationalities' => $nationalities,
-            'saudiData' => $saudiData,
+            'succeed' => true,
             'message' => 'Saudi Volunteers fetched successfully',
-            'status' => 200
+            'data' => $saudiData,
         ]);
     }
 

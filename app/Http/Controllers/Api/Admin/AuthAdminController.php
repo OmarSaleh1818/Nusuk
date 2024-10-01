@@ -31,7 +31,12 @@ class AuthAdminController extends Controller
         // Create an API token for the admin
         $token = $admin->createToken('admin-token')->plainTextToken;
 
-        return response()->json(['token' => $token], 200);
+        return response()->json([
+            'token' => $token,
+            'message' => 'Logged in successfully',
+            'admin' => $admin,
+            'succeed' => true
+        ], 200);
     }
 
     public function Dashboard()
@@ -39,7 +44,8 @@ class AuthAdminController extends Controller
         $opportunities = Opportunity::all();
         return response()->json([
             'opportunities' => $opportunities,
-            'message' => 'Admin dashboard'
+            'message' => 'Admin dashboard',
+            'succeed' => true
         ], 200);
     }
 
@@ -53,6 +59,7 @@ class AuthAdminController extends Controller
             'message' => 'Admin management',
             'status 0' => 'ادمن نسك',
             'status 1' => 'سوبر ',
+            'succeed' => true
         ], 200);
     }
 
@@ -86,11 +93,13 @@ class AuthAdminController extends Controller
         if($admin){
             return response()->json([
                 'message' => 'Admin registered successfully',
-                'admin' => $admin
+                'admin' => $admin,
+                'succeed' => true
             ], 200);
         }else{
             return response()->json([
                 'message' => 'Admin not registered',
+                'succeed' => false
             ], 401);
         }
     }
@@ -100,11 +109,13 @@ class AuthAdminController extends Controller
         $admin = auth()->user()->tokens()->delete();
         if($admin){
             return response()->json([
-                'message' => 'Admin logged out successfully'
+                'message' => 'Admin logged out successfully',
+                'succeed' => true
             ], 200);
         }else{
             return response()->json([
-                'message' => 'Admin not logged out'
+                'message' => 'Admin not logged out',
+                'succeed' => false
             ], 401);
         }
     }

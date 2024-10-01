@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthUserController;
+use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\User\DashboardController;
 use App\Http\Controllers\Api\User\AboutController;
 use App\Http\Controllers\Api\User\FinancialController;
@@ -71,7 +72,6 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         Route::post('/opportunity/store/{id}', [OpportunitiesController::class, 'OpportunityStore']);
         Route::get('/opportunity/eye/{id}', [OpportunitiesController::class, 'OpportunityEye']);
         Route::post('/opportunity/update/{id}', [OpportunitiesController::class, 'OpportunityUpdate']);
-
         Route::get('/opportunity/report/{id}', [OpportunitiesController::class, 'OpportunityReport']);
     /* -------------------- End Opportunities -------------------------*/
 
@@ -82,13 +82,21 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         Route::get('/super/opportunity/not/approve/{id}', [ApproveController::class, 'SuperNotApprove']);
     /* -------------------- End Approval Section -------------------------*/
 
+    /* --------------------- Qualitative Evaluations -------------------------*/
+
+    /* --------------------- End Qualitative Evaluations  -------------------------*/
+
 });
 /* -------------------- End Admin -------------------------*/
 
 /* -------------------- Main User -------------------------*/
     Route::post('/login', [AuthUserController::class, 'login']);
     Route::post('/register', [AuthUserController::class, 'register']);
+    Route::post('/forgot-password', [AuthUserController::class, 'forgotPassword']);
+    Route::post('/reset-password', [AuthUserController::class, 'resetPassword']);
+
     Route::get('/', [DashboardController::class, 'index'])->name('index');
+    Route::post('/contact-us', [ContactUsController::class, 'submit']);
     Route::get('/news/archive', [DashboardController::class, 'NewsArchive']);
     Route::get('/news/data/{id}', [DashboardController::class, 'NewsData']);
 
@@ -98,23 +106,51 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
         Route::get('/organization/dashboard', [DashboardController::class, 'DashboardView']);
 
+        /* -------------------- Basic Data -------------------------*/
         Route::get('/organization/basic', [AboutController::class, 'OrganizationBasic']);
         Route::post('/organization/basic/update', [AboutController::class, 'BasicUpdate']);
+        /* -------------------- End Basic Data -------------------------*/
 
+        /* -------------------- Specialized Data -------------------------*/
+        Route::get('/organization/specialized/data', [AboutController::class, 'OrganizationSpecializedData']);
+        Route::post('/organization/specialized/data/store', [AboutController::class, 'SpecializedDataStore']);
         Route::get('/organization/about', [AboutController::class, 'OrganizationAbout']);
         Route::post('/organization/about/store', [AboutController::class, 'AboutStore']);
+        /* -------------------- End Specialized Data -------------------------*/
 
+        /* -------------------- Financial Data -------------------------*/
         Route::get('/organization/financial', [FinancialController::class, 'OrganizationFinancial']);
         Route::post('/organization/financial/store', [FinancialController::class, 'FinancialStore']);
+        /* -------------------- End Financial Data -------------------------*/
+
+        /* -------------------- Services Data -------------------------*/
+        Route::get('/organization/services/slide', [ServicesController::class, 'OrganizationServicesBySlide']);
+        Route::post('/organization/services/slide/store', [ServicesController::class, 'ServicesBySlideStore']);
+
+        Route::get('/organization/services/target', [ServicesController::class, 'OrganizationServicesByTarget']);
+        Route::post('/organization/services/target/store', [ServicesController::class, 'ServicesByTargetStore']);
 
         Route::get('/organization/services', [ServicesController::class, 'OrganizationServices']);
         Route::post('/organization/services/store', [ServicesController::class, 'ServicesStore']);
 
-        Route::get('/organization/staff', [StaffController::class, 'OrganizationStaff']);
-        Route::get('/organization/staff/saudi/{id}', [StaffController::class, 'OrganizationStaffSaudi']);
-        Route::post('/organization/staff/store', [StaffController::class, 'StaffStore']);
+        Route::get('/organization/services/satisfaction', [ServicesController::class, 'OrganizationServicesBySatisfaction']);
+        Route::post('/organization/services/satisfaction/store', [ServicesController::class, 'ServicesBySatisfactionStore']);
+        /* -------------------- End Services Data -------------------------*/
+        
+        /* -------------------- staff Data -------------------------*/
+        Route::get('/organization/staff/represent', [StaffController::class, 'OrganizationStaffRepresent']);
+        Route::post('/organization/staff/represent/store', [StaffController::class, 'StaffRepresentStore']);
 
-        Route::get('/organization/volunteers', [VolunteerController::class, 'OrganizationVolunteers']);
+        Route::get('/organization/staff/saudi/{id}', [StaffController::class, 'OrganizationStaffSaudi']);
+        Route::post('/organization/staff/saudi/store', [StaffController::class, 'StaffSaudiStore']);
+
+        Route::get('/organization/staff/qualifications', [StaffController::class, 'OrganizationStaffQualifications']);
+        Route::post('/organization/staff/qualifications/store', [StaffController::class, 'StaffQualificationsStore']);
+
+        Route::get('/organization/staff/other', [StaffController::class, 'OrganizationStaffOther']);
+        Route::post('/organization/staff/other/store', [StaffController::class, 'StaffOtherStore']);
+
+        /* -------------------- End Staff Data -------------------------*/
         Route::get('/organization/volunteers/saudi/{id}', [VolunteerController::class, 'OrganizationVolunteersSaudi']);
         Route::post('/organization/volunteer/store', [VolunteerController::class, 'VolunteerStore']);
 

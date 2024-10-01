@@ -22,100 +22,23 @@ use Illuminate\Support\Facades\Log;
 
 class StaffController extends Controller
 {
-    public function OrganizationStaff()
+
+    // ------------- StaffRepresent Data -------------
+    public function OrganizationStaffRepresent()
     {
         $user_id = Auth::user()->id;
-        $nationalities = Nationality::all();
-        $genders = Gender::all();
-        $ages = Age::all();
-        $regions = Region::all();
-        $contracts = Contract::all();
-        $degrees = Degree::all();
-        $operations = Operation::all();
-        $accordings = According::all();
-        $staffOthers = StaffOther::where('user_id', $user_id)->first();
         $staffRepresent = StaffRepresent::where('user_id', $user_id)->first();
-        $existingData = StaffInformation::where('user_id', $user_id)
-                    ->where('nationality_id', 1) 
-                    ->get()
-                    ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id']);
-        $opportunities = Opportunity::all();
-    
-        $staffDegreeData = [];
-
-        foreach ($degrees as $degree) {
-            foreach ($operations as $operation) {
-                // Get the existing data for the current degree and operation
-                $staffDegree = StaffDegree::where('user_id', $user_id)
-                    ->where('degree_id', $degree->id)
-                    ->where('operation_id', $operation->id)
-                    ->first();
-
-                // Structure the data for the API response
-                $staffDegreeData[] = [
-                    'degree_name' => $degree->degree_name,
-                    'operation_name' => $operation->operation_name,
-                    'engaged' => $staffDegree->engaged ?? null,
-                    'not_engaged' => $staffDegree->not_engaged ?? null,
-                    'certified' => $staffDegree->certified ?? null,
-                    'not_certified' => $staffDegree->not_certified ?? null,
-                    'office_work' => $staffDegree->office_work ?? null,
-                    'field_work' => $staffDegree->field_work ?? null,
-                    'mixed_work' => $staffDegree->mixed_work ?? null,
-                    'total' => $staffDegree->total ?? null,
-                    'degree_id' => $degree->id,
-                    'operation_id' => $operation->id
-                ];
-            }
-        }
-        return response()->json([
-            'nationalities' => $nationalities,
-            'genders' => $genders,
-            'ages' => $ages,
-            'regions' => $regions,
-            'contracts' => $contracts,
-            'degrees' => $degrees,
-            'operations' => $operations,
-            'accordings' => $accordings,
-            'staffOthers' => $staffOthers,
-            'staffRepresent' => $staffRepresent,
-            'existingData' => $existingData,
-            'opportunities' => $opportunities,
-            'staffDegreeData' => $staffDegreeData,
-            'message' => 'Data fetched successfully',
-            'status' => 200
+         return response()->json([
+            'succeed' => true,
+            'message' => 'Staff Represent fetched successfully',
+            'data' => $staffRepresent
         ]);
     }
 
-    public function OrganizationStaffSaudi($id)
+    public function StaffRepresentStore(Request $request)
     {
         $user_id = Auth::user()->id;
-        $nationalities = Nationality::all();
-        $saudiData = StaffInformation::where('user_id', $user_id)
-                    ->where('nationality_id', $id) 
-                    ->get()
-                    ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id']);
-
-        if ($saudiData->isEmpty()) {
-            return response()->json([
-                'message' => 'No data found for the given nationality',
-                'status' => 404
-            ]);
-        }
-
-        return response()->json([
-            'nationalities' => $nationalities,
-            'saudiData' => $saudiData,
-            'message' => 'Data fetched successfully',
-            'status' => 200
-        ]);
-    }
-
-    public function StaffStore(Request $request)
-    {
-        $user_id = Auth::user()->id;
-
-        // ------------- StaffRepresent Data -------------
+        
         StaffRepresent::updateOrCreate(
             ['user_id' => $user_id],
             [
@@ -140,8 +63,41 @@ class StaffController extends Controller
             ]
         );
         $staffRepresent = StaffRepresent::where('user_id', $user_id)->first();  
+        return response()->json([
+            'succeed' => true,
+            'message' => 'StaffRepresent Data stored successfully',
+            'data' => $staffRepresent,
+        ]);
+    }
 
-        // ------------- StaffInformation Data -------------
+    // ------------- Staff Saudi Data -------------
+    public function OrganizationStaffSaudi($id)
+    {
+        $user_id = Auth::user()->id;
+        $nationalities = Nationality::all();
+        $saudiData = StaffInformation::where('user_id', $user_id)
+                    ->where('nationality_id', $id) 
+                    ->get()
+                    ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id']);
+
+        if ($saudiData->isEmpty()) {
+            return response()->json([
+                'message' => 'No data found for the given nationality',
+                'status' => 404
+            ]);
+        }
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Data fetched successfully',
+            'data' => $saudiData,
+        ]);
+    }
+
+    public function StaffSaudiStore(Request $request)
+    {
+        $user_id = Auth::user()->id;
+
         $data = $request->all();
         // Loop through the provided data and insert/update in the database
         foreach ($data['number'] as $nationalityId => $genders) {
@@ -184,6 +140,59 @@ class StaffController extends Controller
         }
         $staffInformation = StaffInformation::where('user_id', $user_id)->get();
 
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Data Information stored successfully',
+            'data' => $staffInformation,
+        ]);
+    }
+
+    // ------------- Staff Qualifications Data -------------
+
+    public function OrganizationStaffQualifications()
+    {
+        $user_id = Auth::user()->id;
+        $degrees = Degree::all();
+        $operations = Operation::all();
+    
+        $staffDegreeData = [];
+
+        foreach ($degrees as $degree) {
+            foreach ($operations as $operation) {
+                // Get the existing data for the current degree and operation
+                $staffDegree = StaffDegree::where('user_id', $user_id)
+                    ->where('degree_id', $degree->id)
+                    ->where('operation_id', $operation->id)
+                    ->first();
+
+                // Structure the data for the API response
+                $staffDegreeData[] = [
+                    'degree_name' => $degree->degree_name,
+                    'operation_name' => $operation->operation_name,
+                    'engaged' => $staffDegree->engaged ?? null,
+                    'not_engaged' => $staffDegree->not_engaged ?? null,
+                    'certified' => $staffDegree->certified ?? null,
+                    'not_certified' => $staffDegree->not_certified ?? null,
+                    'office_work' => $staffDegree->office_work ?? null,
+                    'field_work' => $staffDegree->field_work ?? null,
+                    'mixed_work' => $staffDegree->mixed_work ?? null,
+                    'total' => $staffDegree->total ?? null,
+                    'degree_id' => $degree->id,
+                    'operation_id' => $operation->id
+                ];
+            }
+        }
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Qualifications Data fetched successfully',
+            'data' => $staffDegreeData,
+        ]);
+    }
+
+    public function StaffQualificationsStore(Request $request)
+    {
+        $user_id = Auth::user()->id;
+
         // ------------- StaffDegree Data -------------
         foreach ($request->staffDegree as $degreeId => $operations) {
             foreach ($operations as $operationId => $data) {
@@ -209,7 +218,29 @@ class StaffController extends Controller
         }
         $staffDegree = StaffDegree::where('user_id', $user_id)->get();
 
-        // ------------- StaffOther Data -------------
+        return response()->json([
+            'data' => $staffDegree,
+            'message' => 'Data stored successfully',
+            'status' => 200
+        ]);
+    }
+
+    // ------------- Staff Others Data -------------
+    public function OrganizationStaffOther()
+    {
+        $user_id = Auth::user()->id;
+        $staffOthers = StaffOther::where('user_id', $user_id)->first();
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Data fetched successfully',
+            'data' => $staffOthers,
+        ]);
+    }
+
+    public function StaffOtherStore(Request $request)
+    {
+        $user_id = Auth::user()->id;
+
         StaffOther::updateOrCreate(
             ['user_id' => auth()->id()],
             [
@@ -254,12 +285,9 @@ class StaffController extends Controller
         $staffOther = StaffOther::where('user_id', $user_id)->first();
 
         return response()->json([
-            'staffRepresent' => $staffRepresent,
-            'staffInformation' => $staffInformation,
-            'staffDegree' => $staffDegree,
-            'staffOther' => $staffOther,
+            'succeed' => true,
             'message' => 'Data stored successfully',
-            'status' => 200
+            'data' => $staffOther,
         ]);
     }
 

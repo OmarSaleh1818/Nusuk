@@ -15,7 +15,6 @@ class GovernanceController extends Controller
     public function GovernanceView()
     {
         $user_id = Auth::user()->id;
-        $seasons = Season::all();
         // Filter governance by season_id matching the id in the seasons table
         $governance = Governance::where('user_id', $user_id)
                                 ->whereHas('season', function($query) {
@@ -32,10 +31,9 @@ class GovernanceController extends Controller
         }
 
         return response()->json([
-            'governance' => $governance,
-            'seasons' => $seasons,
+            'succeed' => true,
             'message' => 'Governance fetched successfully',
-            'status' => 200,
+            'data' => $governance,
         ], 200);
     }
 
@@ -57,9 +55,9 @@ class GovernanceController extends Controller
         );
 
         return response()->json([
+            'succeed' => true,
             'message' => 'Governance created successfully',
-            'governance' => $governance,
-            'status' => 201,
+            'data' => $governance,
         ], 201);
     }
 

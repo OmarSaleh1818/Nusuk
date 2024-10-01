@@ -22,8 +22,8 @@ use App\Models\Business;
 
 class ServicesController extends Controller
 {
-    
-    public function OrganizationServices()
+    // Serveices By Slide
+    public function OrganizationServicesBySlide()
     {
         $user_id = Auth::user()->id;
         // Get the slides data
@@ -44,7 +44,53 @@ class ServicesController extends Controller
                 'people_dead' => $servicesSlide ? (bool)$servicesSlide->people_dead : false,
             ];
         }
+        
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Services Slide data fetched successfully',
+            'data' => $slideData,
+        ]);
+    }
 
+    public function ServicesBySlideStore(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        // ------------- Slide Data -------------
+        $slide_ids = $request->input('slide_id', []);
+        $outside_kingdom = $request->input('outside_kingdom', []);
+        $inside_kingdom = $request->input('inside_kingdom', []);
+        $female = $request->input('female', []);
+        $special_needs = $request->input('special_needs', []);
+        $people_dead = $request->input('people_dead', []);
+
+        ServicesSlide::where('user_id', $user_id)->delete();
+
+        foreach ($slide_ids as $index => $slide_id) {
+            ServicesSlide::create([
+                'user_id' => $user_id,
+                'slide_id' => $slide_id,
+                'outside_kingdom' => $outside_kingdom[$index] ?? 0,
+                'inside_kingdom' => $inside_kingdom[$index] ?? 0,
+                'female' => $female[$index] ?? 0,
+                'special_needs' => $special_needs[$index] ?? 0,
+                'people_dead' => $people_dead[$index] ?? 0
+            ]);
+        }
+        $slideData = ServicesSlide::where('user_id', $user_id)->get();
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Services Slide data updated successfully',
+            'data' => $slideData,
+        ]);
+        
+    }
+
+    // Serveices By Target
+    public function OrganizationServicesByTarget()
+    {
+        $user_id = Auth::user()->id;
+       
         // Get the targets data
         $targets = LocalTarget::all();
         $targetData = [];
@@ -73,6 +119,41 @@ class ServicesController extends Controller
             ];
         }
 
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Services Target data fetched successfully',
+            'data' => $targetData,
+        ]);
+    
+    }
+
+    public function ServicesByTargetStore(Request $request)
+    {
+        $user_id = Auth::user()->id;
+
+        // Target Data
+        TargetService::where('user_id', $user_id)->delete();
+        if ($request->has('service_id')) {
+            foreach ($request->service_id as $service_id) {
+                TargetService::create([
+                    'user_id' => $user_id,
+                    'service_id' => $service_id,
+                ]);
+            }
+        }
+        $targetData = TargetService::where('user_id', $user_id)->get();
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Services Target data updated successfully',
+            'data' => $targetData,
+        ]);
+    }
+
+    // Serveices for beneficiaries
+    public function OrganizationServices()
+    {
+        $user_id = Auth::user()->id;
          // Get all stages with their businesses
         $stages = Stage::with('businesses')->get();
         $indicators = Indicator::all();
@@ -107,19 +188,11 @@ class ServicesController extends Controller
             }
             $response[] = $stageData;
         }
-        // Get the benefit satisfaction data
-        $benefitSatisfaction = BenefitSatisfaction::where('user_id', $user_id)->first();
-        // Get the opportunities data
-        $opportunities = Opportunity::all();
-        // Return the response as JSON
+       
         return response()->json([
-            'slideData' => $slideData,
-            'targetData' => $targetData,
-            'stagesData' => $response,
-            'benefitSatisfaction' => $benefitSatisfaction,
-            'opportunities' => $opportunities,
+            'succeed' => true,
             'message' => 'Services data fetched successfully',
-            'status' => 200,
+            'data' => $response,
         ]);
     
     }
@@ -127,41 +200,6 @@ class ServicesController extends Controller
     public function ServicesStore(Request $request)
     {
         $user_id = Auth::user()->id;
-
-        // ------------- Slide Data -------------
-        $slide_ids = $request->input('slide_id', []);
-        $outside_kingdom = $request->input('outside_kingdom', []);
-        $inside_kingdom = $request->input('inside_kingdom', []);
-        $female = $request->input('female', []);
-        $special_needs = $request->input('special_needs', []);
-        $people_dead = $request->input('people_dead', []);
-
-        ServicesSlide::where('user_id', $user_id)->delete();
-
-        foreach ($slide_ids as $index => $slide_id) {
-            ServicesSlide::create([
-                'user_id' => $user_id,
-                'slide_id' => $slide_id,
-                'outside_kingdom' => $outside_kingdom[$index] ?? 0,
-                'inside_kingdom' => $inside_kingdom[$index] ?? 0,
-                'female' => $female[$index] ?? 0,
-                'special_needs' => $special_needs[$index] ?? 0,
-                'people_dead' => $people_dead[$index] ?? 0
-            ]);
-        }
-        $slideData = ServicesSlide::where('user_id', $user_id)->get();
-
-        // Target Data
-        TargetService::where('user_id', $user_id)->delete();
-        if ($request->has('service_id')) {
-            foreach ($request->service_id as $service_id) {
-                TargetService::create([
-                    'user_id' => $user_id,
-                    'service_id' => $service_id,
-                ]);
-            }
-        }
-        $targetData = TargetService::where('user_id', $user_id)->get();
 
         // ------------- Service Implemented Data -------------
         $seasonal_services = $request->input('seasonal_service', []);
@@ -203,6 +241,32 @@ class ServicesController extends Controller
         }
         $serviceImplementedData = ServiceImplemented::where('user_id', $user_id)->get();
 
+        
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Services data updated successfully',
+            'data' => $serviceImplementedData,
+        ]);
+        
+    }
+
+    // Serveices for Satisfaction
+    public function OrganizationServicesBySatisfaction()
+    {
+        $user_id = Auth::user()->id;
+         // Get the benefit satisfaction data
+        $benefitSatisfaction = BenefitSatisfaction::where('user_id', $user_id)->first();
+
+         return response()->json([
+            'succeed' => true,
+            'message' => 'Services Satisfaction data fetched successfully',
+            'data' => $benefitSatisfaction,
+        ]);
+    }
+
+    public function ServicesBySatisfactionStore(Request $request)
+    {
+        $user_id = Auth::user()->id;
         // Benefit Satisfaction Data
         BenefitSatisfaction::updateOrCreate(
             ['user_id' => $user_id],
@@ -224,17 +288,11 @@ class ServicesController extends Controller
             ]
         );
         $benefitSatisfactionData = BenefitSatisfaction::where('user_id', $user_id)->first();
-
         return response()->json([
-            'slideData' => $slideData,
-            'targetData' => $targetData,
-            'serviceImplementedData' => $serviceImplementedData,
-            'benefitSatisfactionData' => $benefitSatisfactionData,
-            'message' => 'Services data updated successfully',
-            'status' => 200,
+            'succeed' => true,
+            'message' => 'Services Satisfaction data updated successfully',
+            'data' => $benefitSatisfactionData,
         ]);
-        
-
     }
 
 

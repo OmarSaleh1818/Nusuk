@@ -22,9 +22,7 @@ class PartnershipsController extends Controller
         $partnerships = Partnerships::where('user_id', $user_id)
                                 ->with('type', 'status') 
                                 ->get();
-        $partnership_type = PartnershipsType::all();
-        $status = partnershipsStatus::all();
-
+    
         if ($partnerships->isEmpty()) {
             return response()->json([
                 'message' => 'No partnerships found',
@@ -33,11 +31,9 @@ class PartnershipsController extends Controller
         }
 
         return response()->json([
-            'partnerships' => $partnerships,
-            'partnership_types' => $partnership_type,
-            'statuses' => $status,
+            'succeed' => true,
             'message' => 'Partnerships fetched successfully',
-            'status' => 200,
+            'data' => $partnerships,
         ], 200);
 
     }
@@ -70,9 +66,9 @@ class PartnershipsController extends Controller
 
             // Return a JSON response indicating success
             return response()->json([
+                'succeed' => true,
                 'message' => 'Partnership created successfully',
-                'partnership' => $partnership,
-                'status' => 201,
+                'data' => $partnership,
             ], 201);
 
         } catch (\Exception $e) {
@@ -99,9 +95,9 @@ class PartnershipsController extends Controller
         }
 
         return response()->json([
-            'partnership' => $partnership,
+            'succeed' => true,
             'message' => 'Partnership fetched successfully',
-            'status' => 200
+            'data' => $partnership,
         ]);
     }
 
@@ -136,9 +132,9 @@ class PartnershipsController extends Controller
             ]);
 
             return response()->json([
+                'succeed' => true,
                 'message' => 'Partnership updated successfully',
-                'partnership' => $partnership,
-                'status' => 200,
+                'data' => $partnership,
             ], 200);
 
         } catch (\Exception $e) {
@@ -165,6 +161,7 @@ class PartnershipsController extends Controller
             $partnership->delete();
 
             return response()->json([
+                'succeed' => true,
                 'message' => 'Partnership deleted successfully',
                 'status' => 200,
             ], 200);
