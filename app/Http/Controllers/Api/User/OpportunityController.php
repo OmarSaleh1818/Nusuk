@@ -26,19 +26,17 @@ class OpportunityController extends Controller
     
     public function OrganizationOpportunity($id)
     {
-        $opportunities = Opportunity::all();
-        $opportunityData = OpportunityData::where('opportunity_id', $id)->orderBy('id', 'DESC')->get();
         $opportunity = Opportunity::find($id);
+        $opportunityData = OpportunityData::where('opportunity_id', $id)->orderBy('id', 'DESC')->with('opportunity')->get();
         if($opportunity){
             return response()->json([
-                'opportunities' => $opportunities,
-                'opportunityData' => $opportunityData,
-                'opportunity' => $opportunity,
+                'succeed' => true,
                 'message' => 'Opportunity fetched successfully',
-                'status' => 200,
-            ]);
+                'data' => $opportunityData,
+                ]);
         } else {
             return response()->json([
+                'succeed' => false,
                 'message' => 'Opportunity not found',
                 'status' => 404,
             ]);
@@ -48,7 +46,7 @@ class OpportunityController extends Controller
     public function OrganizationOpportunityEye($id)
     {
         $user_id = Auth::user()->id;
-        $user_status = UserOpportunityStatus::where('opportunity_id', $id)->where('user_id', $user_id)->first();
+        $user_status = UserOpportunityStatus::where('opportunity_id', $id)->where('user_id', $user_id)->with('status')->first();
         
         // Initialize displayStatus to null to avoid undefined variable error
         $displayStatus = null;
@@ -67,41 +65,52 @@ class OpportunityController extends Controller
 
         // Fetch all necessary data
         $opportunity = OpportunityData::find($id);
-        $status = OpportunityStatus::where('id', $opportunity->status_id)->first();
-        $add = Opportunity::where('id', $opportunity->opportunity_id)->first();
-        $question = Question::where('opportunityData_id', $id)->where('is_numeric', 0)->get();
-        $questionNumeric = Question::where('opportunityData_id', $id)->where('is_numeric', 1)->get();
-        $answer_multiple = UserAnswerMultiple::where('user_id', $user_id)->where('opportunityData_id', $id)->exists();
-        $answer_numeric = UserAnswerNumeric::where('user_id', $user_id)->where('opportunityData_id', $id)->exists();
-        $user_organization_id = Auth::user()->user_id;
-        $user_multiple = UserAnswerMultiple::where('user_id', $user_organization_id)->where('opportunityData_id', $id)->exists();
-        $user_numeric = UserAnswerNumeric::where('user_id', $user_organization_id)->where('opportunityData_id', $id)->exists();
-        $organizationStatus = OrganizationStatus::all();
 
-        $answers = [];
-        foreach($question as $item){
-            $answer = Answer::where('question_id', $item->id)->get();
-            $answers = $answer->shuffle();
+        // Check if opportunity exists
+        if ($opportunity) {
+            $status = OpportunityStatus::where('id', $opportunity->status_id)->first();
+            $add = Opportunity::where('id', $opportunity->opportunity_id)->first();
+            $question = Question::where('opportunityData_id', $id)->where('is_numeric', 0)->get();
+            $questionNumeric = Question::where('opportunityData_id', $id)->where('is_numeric', 1)->get();
+            $answer_multiple = UserAnswerMultiple::where('user_id', $user_id)->where('opportunityData_id', $id)->exists();
+            $answer_numeric = UserAnswerNumeric::where('user_id', $user_id)->where('opportunityData_id', $id)->exists();
+            // for organization users 
+            $user_organization_id = Auth::user()->user_id;
+            $user_multiple = UserAnswerMultiple::where('user_id', $user_organization_id)->where('opportunityData_id', $id)->exists();
+            $user_numeric = UserAnswerNumeric::where('user_id', $user_organization_id)->where('opportunityData_id', $id)->exists();
+
+            $answers = [];
+            foreach ($question as $item) {
+                $answer = Answer::where('question_id', $item->id)->get();
+                $answers = $answer->shuffle();
+            }
+
+            // Response data
+            return response()->json([
+                'succeed' => true,
+                'message' => 'Opportunity fetched successfully',
+                'data' => [
+                    'opportunity_data' => $opportunity,
+                    'opportunityData_status' => $status,
+                    'opportunity' => $add,
+                    'question_multiple' => $question,
+                    'question_numeric' => $questionNumeric,
+                    'answers' => $answers,
+                    'answer_numeric' => $answer_numeric,
+                    'answer_multiple' => $answer_multiple,
+                    'user_multiple' => $user_multiple,
+                    'user_numeric' => $user_numeric,
+                    'user_status' => $user_status,
+                    'display_status' => $displayStatus,
+                ],
+            ]);
+        } else {
+            return response()->json([
+                'succeed' => false,
+                'message' => 'Opportunity not found',
+                'status' => 404,
+            ]);
         }
-
-        // Response data
-        return response()->json([
-            'opportunity_data' => $opportunity,
-            'opportunity_status' => $status,
-            'opportunity' => $add,
-            'question' => $question,
-            'question_numeric' => $questionNumeric,
-            'answers' => $answers,
-            'answer_numeric' => $answer_numeric,
-            'answer_multiple' => $answer_multiple,
-            'user_multiple' => $user_multiple,
-            'user_numeric' => $user_numeric,
-            'user_status' => $user_status,
-            'display_status' => $displayStatus,
-            'organization_status' => $organizationStatus,
-            'message' => 'Opportunity fetched successfully',
-            'status' => 200,
-        ]);
     }
 
     public function UpdateStatus(Request $request)
@@ -111,7 +120,7 @@ class OpportunityController extends Controller
         $status = $request->organization_status;
     
         // Use updateOrCreate to update existing record or create a new one
-        $userOpportunityStatus = UserOpportunityStatus::updateOrCreate(
+        $userOpportunityStatus = UserOpportunityStatus::with('status')->updateOrCreate(
             [
                 'user_id' => $user_id,
                 'opportunity_id' => $opportunity_id
@@ -123,9 +132,9 @@ class OpportunityController extends Controller
     
         // Return a JSON response after updating or creating the record
         return response()->json([
-            'user_status' => $userOpportunityStatus,
+            'succeed' => true,
             'message' => 'Status updated successfully',
-            'status' => $userOpportunityStatus->status
+            'data' => $userOpportunityStatus,
         ], 200);
     }
 
@@ -234,31 +243,29 @@ class OpportunityController extends Controller
     
         // Return JSON response to frontend
         return response()->json([
+            'succeed' => true,
             'message' => 'Answers saved successfully',
-            'evaluation_score' => $totalEvaluationScore,
-            'total_percentage' => $totalPercentage,
-            'status' => 1
+            'data' => [
+                'evaluation_score' => $totalEvaluationScore,
+                'total_percentage' => $totalPercentage,
+            ],
         ]);
     }
 
     public function OrganizationScore($id)
     {
-        $opportunities = Opportunity::all();
-        $opportunity_data = OpportunityData::find($id);
-        $opportunity = Opportunity::where('id', $opportunity_data->opportunity_id)->first();
         $user_id = Auth::user()->id;
         $user_organization_id = Auth::user()->user_id;
         $score = OrganizationScore::where('opportunityData_id', $id)->where('user_id', $user_id)->first();
         $organization_score = OrganizationScore::where('user_id', $user_organization_id)->where('opportunityData_id', $id)->first();
 
         return response()->json([
-            'opportunities' => $opportunities,
-            'opportunity_data' => $opportunity_data,
-            'opportunity' => $opportunity,
-            'score' => $score,
-            'organization_score' => $organization_score,
-            'message' => 'Score fetched successfully',
-            'status' => 200,
+            'succeed' => true,
+            'message' => 'Score saved successfully',
+            'data' => [
+                'organization_score' => $score,
+                'organization_users_score' => $organization_score,
+            ],
         ]);
     }
 

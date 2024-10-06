@@ -106,15 +106,12 @@ class ServicesController extends Controller
                     ->exists();
                 // Add service data including whether it's checked or not
                 $serviceData[] = [
-                    'service_name' => $service->service_name,
                     'service_id' => $service->id,
                     'checked' => $checkService ? true : false
                 ];
             }
             // Add target and its associated services data to the array
             $targetData[] = [
-                'target_name' => $target->target_name,
-                'target_id' => $target->id,
                 'services' => $serviceData
             ];
         }
@@ -153,28 +150,22 @@ class ServicesController extends Controller
     // Serveices for beneficiaries
     public function OrganizationServices()
     {
-        $user_id = Auth::user()->id;
-         // Get all stages with their businesses
+       $user_id = Auth::user()->id;
+        // Get all stages with their businesses
         $stages = Stage::with('businesses')->get();
         $indicators = Indicator::all();
         $serviceImplemented = ServiceImplemented::where('user_id', $user_id)->get();
         $response = [];
+        
         foreach ($stages as $stage) {
-            $stageData = [
-                'stage_name' => $stage->stage_name,
-                'businesses' => [],
-            ];
             foreach ($stage->businesses as $business) {
-                $businessData = [
-                    'business_name' => $business->business_name,
-                    'indicators'    => [],
-                ];
                 foreach ($indicators as $indicator) {
                     // Check if the service was implemented by the user for this business and indicator
                     $existing = $serviceImplemented->where('business_id', $business->id)
-                                                ->where('indicator_id', $indicator->id)
-                                                ->first();
-                    $businessData['indicators'][] = [
+                                                    ->where('indicator_id', $indicator->id)
+                                                    ->first();
+                    // Collect only the indicator data
+                    $response[] = [
                         'indicator_name'    => $indicator->indicator_name,
                         'seasonal_service'  => $existing->seasonal_service ?? null,
                         'ongoing_service'   => $existing->ongoing_service ?? null,
@@ -184,16 +175,15 @@ class ServicesController extends Controller
                         'indicator_id'      => $indicator->id,
                     ];
                 }
-                $stageData['businesses'][] = $businessData;
             }
-            $response[] = $stageData;
         }
-       
+
         return response()->json([
             'succeed' => true,
-            'message' => 'Services data fetched successfully',
-            'data' => $response,
+            'message' => 'Indicators data fetched successfully',
+            'data'    => $response,
         ]);
+    
     
     }
 

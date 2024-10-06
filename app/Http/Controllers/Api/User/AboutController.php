@@ -92,15 +92,12 @@ class AboutController extends Controller
 
                 $descriptionData[] = [
                     'id' => $description->id,
-                    'description' => $description->description,
                     'is_checked' => $isChecked // Include the checked status
                 ];
             }
 
             // Add the type and its descriptions to the response array
             $data[] = [
-                'type_id' => $type->id,
-                'type_name' => $type->type_name,
                 'descriptions' => $descriptionData
             ];
         }

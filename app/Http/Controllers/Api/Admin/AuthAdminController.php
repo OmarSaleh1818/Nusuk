@@ -43,19 +43,17 @@ class AuthAdminController extends Controller
     {
         $opportunities = Opportunity::all();
         return response()->json([
-            'opportunities' => $opportunities,
+            'succeed' => true,
             'message' => 'Admin dashboard',
-            'succeed' => true
+            'data' => $opportunities,
         ], 200);
     }
 
     public function AdminManagement()
     {
         $admins = Admin::all();
-        $opportunities = Opportunity::all();
         return response()->json([
-            'admins' => $admins,
-            'opportunities' => $opportunities,
+            'data' => $admins,
             'message' => 'Admin management',
             'status 0' => 'ادمن نسك',
             'status 1' => 'سوبر ',
@@ -120,8 +118,23 @@ class AuthAdminController extends Controller
         }
     }
 
+    public function AdminPermission()
+    {
+        $admin = auth()->guard('api')->user(); 
 
+        if($admin){
+            $admin_permission = $admin->status; // Get the admin_permission field
 
+            return response()->json([
+                'message' => 'Admin permission fetched successfully',
+                'data' => $admin_permission // Return the admin_permission
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Failed to fetch admin',
+            ], 404); // Return 404 status if no admin is found
+        }
+    }
 
 
 

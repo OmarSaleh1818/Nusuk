@@ -21,9 +21,9 @@ class ApproveController extends Controller
             ->update(['status' => 2]);
 
         return response()->json([
-            'score' => $score,
+            'succeed' => true,
             'message' => 'تمت الموافقة بنجاح',
-            'status' => 200
+            'data' => $score,
         ]);
     }
 
@@ -45,9 +45,9 @@ class ApproveController extends Controller
             ->update(['status' => 11]);
 
         return response()->json([
-            'score' => $score,
+            'succeed' => true, 
             'message' => 'تم طلب إعادة التقييم بنجاح',
-            'status' => 200
+            'data' => $score,
         ]);
     }
 
@@ -65,9 +65,9 @@ class ApproveController extends Controller
             ->update(['status' => 4, 'total_percentage' => 100]);
 
         return response()->json([
-            'score' => $score,
-            'message' => 'تم الموافقة بنجاح',
-            'status' => 200
+            'succeed' => true,
+            'message' => 'تمت الموافقة بنجاح',
+            'data' => $score,
         ]);
     }
 
@@ -85,9 +85,9 @@ class ApproveController extends Controller
             ->update(['status' => 5]);
 
         return response()->json([
-            'score' => $score,
+            'succeed' => true,
             'message' => 'تم  استبعاد المنظمة',
-            'status' => 200
+            'data' => $score,
         ]);
     }
 

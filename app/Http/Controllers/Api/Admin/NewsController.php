@@ -13,20 +13,25 @@ class NewsController extends Controller
     
     public function NewsView()
     {
-        $opportunities = Opportunity::all();
         $news = News::orderBy('id', 'DESC')->get();
-        return response()->json([
-            'news' => $news,
-            'opportunities' => $opportunities,
-            'message' => 'News view'
-        ], 200);
+        if ($news->isNotEmpty()) {
+            return response()->json([
+                'succeed' => true, 
+                'message' => 'News view',
+                'data' => $news,
+            ], 200);
+        } else {
+            return response()->json([
+                'succeed' => false,
+                'message' => 'No news found',
+                'data' => [],
+            ], 404);
+        }
     }
 
     public function NewsAdd()
     {
-        $opportunities = Opportunity::all();
         return response()->json([
-            'opportunities' => $opportunities,
             'message' => 'News add'
         ], 200);
     }
@@ -38,15 +43,14 @@ class NewsController extends Controller
             'news_title' => 'required',
             'short_description' => 'required',
             'long_description' => 'required',
-            'news_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'news_image' => 'required|image|mimes:jpeg,png,jpg,gif',
         ], [
             'news_title.required' => 'ادخل العنوان من فضلك',
             'short_description.required' => 'ادخل المحتوى المختصر من فضلك',
             'long_description.required' => 'ادخل المحتوى الكامل من فضلك',
             'news_image.required' => 'Please upload image',
             'news_image.image' => 'The file must be an image',
-            'news_image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif, svg',
-            'news_image.max' => 'The image must not be greater than 2MB',
+            'news_image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif, svg'
         ]);
 
         $file = $request->file('news_image');
@@ -61,12 +65,14 @@ class NewsController extends Controller
                     'created_at' => Carbon::now('Asia/Riyadh'),
                 ]);
                 return response()->json([
-                    'news' => $news,
-                    'message' => 'News added successfully'
+                    'succeed' => true,
+                    'message' => 'News added successfully',
+                    'data' => $news,
                 ], 200);
             }
         } else {
             return response()->json([
+                'succeed' => false,
                 'message' => 'News not added'
             ], 401);
         } 
@@ -76,33 +82,55 @@ class NewsController extends Controller
     {
         $news = News::find($id);
         $news->status_id = 2;
-        $news->save();
-        return response()->json([
-            'news' => $news,
-            'message' => 'News hidden successfully'
-        ], 200);
+        if ($news) {
+            $news->save();
+            return response()->json([
+                'succeed' => true, 
+                'message' => 'News hidden successfully',
+                'data' => $news,
+            ], 200);
+        } else {
+            return response()->json([
+                'succeed' => false,
+                'message' => 'News not found',
+            ], 404);
+        }
     }
 
     public function NewsShow($id)
     {
         $news = News::find($id);
-        $news->status_id = 1;
-        $news->save();
-        return response()->json([
-            'news' => $news,
-            'message' => 'News shown successfully'
-        ], 200);
+        if ($news) {
+            $news->status_id = 1;
+            $news->save();
+            return response()->json([
+                'succeed' => true, 
+                'message' => 'News hidden successfully',
+                'data' => $news,
+            ], 200);
+        } else {
+            return response()->json([
+                'succeed' => false,
+                'message' => 'News not found',
+            ], 404);
+        }
     }
 
     public function NewsEdit($id)
     {
         $news = News::find($id);
-        $opportunities = Opportunity::all();
-        return response()->json([
-            'news' => $news,
-            'opportunities' => $opportunities,
-            'message' => 'News edited successfully'
-        ], 200);
+        if ($news) {
+            return response()->json([
+                'succeed' => true,
+                'message' => 'News found successfully',
+                'data' => $news,
+            ], 200);
+        } else {
+            return response()->json([
+                'succeed' => false,
+                'message' => 'News not found',
+            ], 404);
+        }
     }
     
     public function NewsUpdate(Request $request, $id)
@@ -118,8 +146,9 @@ class NewsController extends Controller
                 $news->news_image = $filePath;
                 $news->save();
                 return response()->json([
-                    'news' => $news,
-                    'message' => 'News updated successfully'
+                    'succeed' => true,
+                    'message' => 'News updated successfully',
+                    'data' => $news,
                 ], 200);
             }
         } else {
@@ -129,8 +158,9 @@ class NewsController extends Controller
             $news->long_description = $request->long_description;
             $news->save();
             return response()->json([
+                'succeed' => true,
+                'message' => 'News updated successfully',
                 'news' => $news,
-                'message' => 'News updated successfully'
             ], 200);
         }
     }
@@ -138,10 +168,18 @@ class NewsController extends Controller
     public function NewsDelete($id)
     {
         $news = News::find($id);
-        $news->delete();
-        return response()->json([
-            'message' => 'News deleted successfully'
-        ], 200);
+        if ($news) {
+            $news->delete();
+            return response()->json([
+                'succeed' => true,
+                'message' => 'News deleted successfully'
+            ], 200);
+        } else {
+            return response()->json([
+                'succeed' => false,
+                'message' => 'News not found'
+            ], 404);
+        }
     }
             
 

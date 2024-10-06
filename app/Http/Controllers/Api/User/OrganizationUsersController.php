@@ -48,12 +48,10 @@ class OrganizationUsersController extends Controller
     public function OrganizationUserManagement($id)
     {
         $organization_users = User::where('user_id', $id)->get();
-        $opportunities = Opportunity::all();
         return response()->json([
-            'organization_users' => $organization_users,
-            'opportunities' => $opportunities,
+            'succeed' => true,
             'message' => 'Data fetched successfully',
-            'status' => 200,
+            'data' => $organization_users,
         ]);
     }
 
@@ -94,10 +92,8 @@ class OrganizationUsersController extends Controller
 
     public function OrganizationAddUser($id)
     {
-        $opportunities = Opportunity::all();
         return response()->json([
             'id' => $id,
-            'opportunities' => $opportunities,
             'message' => 'Data fetched successfully',
             'status' => 200
         ]);
@@ -105,32 +101,23 @@ class OrganizationUsersController extends Controller
 
     public function OrganizationStoreUser(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+       
+        $request->validate([
             'contact_name' => 'required',
-            'email' => 'required|email|unique:users',
+            'email' => 'required',
             'contact_job_title' => 'required',
             'contact_mobile' => 'required',
             'name' => 'required',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ], [
+        ],[
             'contact_name.required' => 'اسم المطلوب',
             'email.required' => 'الايميل المطلوب',
-            'email.email' => 'يجب أن يكون الايميل صالحًا',
-            'email.unique' => 'هذا الايميل مستخدم بالفعل',
             'contact_job_title.required' => 'المسمى الوظيفي المطلوب',
             'password.required' => 'كلمة المرور المطلوب',
-            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق',
+            'password_confirmation.required' => 'تأكيد كلمة المرور مطلوب',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $validator->errors(),
-                'status' => 422
-            ], 422);
-        }
-
-        $user = User::create([
+        $user = User::insert([
             'user_id' => $request->user_id,
             'contact_name' => $request->contact_name,
             'email' => $request->email,
@@ -139,19 +126,20 @@ class OrganizationUsersController extends Controller
             'contact_job_title' => $request->contact_job_title,
             'user_permission' => 2,
             'password' => Hash::make($request->password),
+            'created_at' => Carbon::now(),
         ]);
 
+        // Return a success response
         return response()->json([
+            'succeed' => true,
             'message' => 'تم إضافة مستخدم بنجاح',
-            'user' => $user,
-            'status' => 201
+            'data' => $user,
         ], 201);
     }
 
     public function OrganizationUserBasic($id)
     {
         $basic = User::where('id', $id)->first();
-        $opportunities = Opportunity::all();
 
         if (!$basic) {
             return response()->json([
@@ -161,8 +149,9 @@ class OrganizationUsersController extends Controller
         }
 
         return response()->json([
-            'basic' => $basic,
-            'opportunities' => $opportunities,
+            'succeed' =>true,
+            'message' => 'Basic data fetched Succeefully',
+            'data' => $basic,
             'status' => 200
         ], 200);
     }
@@ -171,7 +160,6 @@ class OrganizationUsersController extends Controller
     {
         $about = Apout::where('user_id', $id)->first();
         $types = LocalType::all();
-        $opportunities = Opportunity::all();
         $response = [];
 
         foreach ($types as $type) {
@@ -201,12 +189,12 @@ class OrganizationUsersController extends Controller
         }
         if($about){
             return response()->json([
-                'about data' => $about,
-                'types' => $types,
-                'opportunities' => $opportunities,
-                'response' => $response,
+                'succeed' => true,
                 'message' => 'About data fetched successfully', 
-                'status' => 200,
+                'data' => [
+                    'about data' => $about,
+                    'response' => $response,
+                ],
             ]);
         }else{
             return response()->json([
@@ -219,14 +207,12 @@ class OrganizationUsersController extends Controller
     public function OrganizationUserFinancial($id)
     {
         $financial = Financial::where('user_id', $id)->first();
-        $opportunities = Opportunity::all();
         
         if ($financial) {
             return response()->json([
-                'financial' => $financial,
-                'opportunities' => $opportunities,
+                'succeed' => true,
                 'message' => 'Financial data fetched successfully',
-                'status' => 200
+                'data' => $financial,
             ]);
         } else {
             return response()->json([
@@ -321,17 +307,16 @@ class OrganizationUsersController extends Controller
         }
         // Get the benefit satisfaction data
         $benefitSatisfaction = BenefitSatisfaction::where('user_id', $id)->first();
-        // Get the opportunities data
-        $opportunities = Opportunity::all();
         // Return the response as JSON
         return response()->json([
-            'slideData' => $slideData,
-            'targetData' => $targetData,
-            'stagesData' => $response,
-            'benefitSatisfaction' => $benefitSatisfaction,
-            'opportunities' => $opportunities,
+            'succeed' => true,
             'message' => 'Services data fetched successfully',
-            'status' => 200,
+            'data' => [
+                'slideData' => $slideData,
+                'targetData' => $targetData,
+                'stagesData' => $response,
+                'benefitSatisfaction' => $benefitSatisfaction,
+            ],
         ]);
     }
 
@@ -350,7 +335,6 @@ class OrganizationUsersController extends Controller
         $existingData = StaffInformation::where('user_id', $id)
                         ->get()
                         ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id']);
-        $opportunities = Opportunity::all();
     
         $staffDegreeData = [];
 
@@ -381,21 +365,14 @@ class OrganizationUsersController extends Controller
         }
         if($id){
             return response()->json([
-                'nationalities' => $nationalities,
-                'genders' => $genders,
-                'ages' => $ages,
-                'regions' => $regions,
-                'contracts' => $contracts,
-                'degrees' => $degrees,
-                'operations' => $operations,
-                'accordings' => $accordings,
-                'staffOthers' => $staffOthers,
-                'staffRepresent' => $staffRepresent,
-                'existingData' => $existingData,
-                'opportunities' => $opportunities,
-                'staffDegreeData' => $staffDegreeData,
+                'succeed' => true,
                 'message' => 'Data fetched successfully',
-                'status' => 200
+                'data' => [
+                    'staffOthers' => $staffOthers,
+                    'staffRepresent' => $staffRepresent,
+                    'existingData' => $existingData,
+                    'staffDegreeData' => $staffDegreeData,
+                ],
             ]);
         }else{
             return response()->json([
@@ -420,15 +397,17 @@ class OrganizationUsersController extends Controller
             ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id', 'according_id']);
     
         return response()->json([
-            'nationalities' => $nationalities,
-            'genders' => $genders,
-            'ages' => $ages,
-            'regions' => $regions,
-            'contracts' => $contracts,
-            'accordings' => $accordings,
-            'existingData' => $existingData,
+            'succeed' => true,
             'message' => 'Volunteers fetched successfully',
-            'status' => 200
+            'data' => [
+                'nationalities' => $nationalities,
+                'genders' => $genders,
+                'ages' => $ages,
+                'regions' => $regions,
+                'contracts' => $contracts,
+                'accordings' => $accordings,
+                'existingData' => $existingData,
+            ],
         ]);
     }
 

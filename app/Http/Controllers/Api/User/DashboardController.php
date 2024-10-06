@@ -27,11 +27,12 @@ class DashboardController extends Controller
         }
         $user = Auth::user();
         return response()->json([
-            'opportunities' => $opportunities,
-            'opportunity_data' => $opportunityData,
-            'user' => $user,
+            'succeed' => true,
             'message' => 'Dashboard View',
-            'status' => 200,
+            'data' => [
+                'opportunities' => $opportunityData,
+                'user' => $user,
+            ],
         ]);
     }
 
@@ -48,9 +49,9 @@ class DashboardController extends Controller
             ]);
         }
         return response()->json([
-            'news' => $news,
+            'succeed' => true,
             'message' => 'display the last three news',
-            'status' => 200,
+            'data' => $news,
         ]);
     }
 
@@ -64,9 +65,9 @@ class DashboardController extends Controller
             ]);
         }
         return response()->json([
-            'news' => $news,
+            'succeed' =>true, 
             'message' => 'display all news',
-            'status' => 200,
+            'data' => $news,
         ]);
     }
 
@@ -81,10 +82,12 @@ class DashboardController extends Controller
             ]);
         }
         return response()->json([
-            'new' => $new,
-            'news' => $news,
+            'succeed' =>true, 
             'message' => 'display the news data',
-            'status' => 200,
+            'data' => [
+                'new' => $new,
+                'news' => $news,
+            ],
         ]);
     }
     

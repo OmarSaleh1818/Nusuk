@@ -71,14 +71,60 @@ class StaffController extends Controller
     }
 
     // ------------- Staff Saudi Data -------------
-    public function OrganizationStaffSaudi($id)
+    public function OrganizationStaffConsulting($id)
     {
         $user_id = Auth::user()->id;
         $nationalities = Nationality::all();
         $saudiData = StaffInformation::where('user_id', $user_id)
                     ->where('nationality_id', $id) 
-                    ->get()
-                    ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id']);
+                    ->where('contract_id', 3)
+                    ->get();
+
+        if ($saudiData->isEmpty()) {
+            return response()->json([
+                'message' => 'No data found for the given nationality',
+                'status' => 404
+            ]);
+        }
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Data fetched successfully',
+            'data' => $saudiData,
+        ]);
+    }
+
+    public function OrganizationStaffFulltime($id)
+    {
+        $user_id = Auth::user()->id;
+        $nationalities = Nationality::all();
+        $saudiData = StaffInformation::where('user_id', $user_id)
+                    ->where('nationality_id', $id) 
+                    ->where('contract_id', 1) 
+                    ->get();
+
+        if ($saudiData->isEmpty()) {
+            return response()->json([
+                'message' => 'No data found for the given nationality',
+                'status' => 404
+            ]);
+        }
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Data fetched successfully',
+            'data' => $saudiData,
+        ]);
+    }
+
+    public function OrganizationStaffpartTime($id)
+    {
+        $user_id = Auth::user()->id;
+        $nationalities = Nationality::all();
+        $saudiData = StaffInformation::where('user_id', $user_id)
+                    ->where('nationality_id', $id) 
+                    ->where('contract_id', 2) 
+                    ->get();
 
         if ($saudiData->isEmpty()) {
             return response()->json([

@@ -47,12 +47,11 @@ class UserManagementController extends Controller
     
     public function UserManagement()
     {
-        $opportunities = Opportunity::all();
         $users = User::where('user_permission', 1)->orderBy('id', 'desc')->get();
         return response()->json([
-            'opportunities' => $opportunities,
-            'users' => $users,
-            'message' => 'Users fetched successfully'
+            'succeed' => true, 
+            'message' => 'Users fetched successfully',
+            'data' => $users,
         ], 200);
     }
 
@@ -97,19 +96,19 @@ class UserManagementController extends Controller
     {
         $user = User::where('id', $id)->first();
         return response()->json([
-            'user' => $user,
-            'message' => 'User fetched successfully'
+            'succeed' => true,
+            'message' => 'User fetched successfully',
+            'data' => $user,
         ], 200);
     }
 
     public function AdminOrganizationBasic($id)
     {
         $basic = User::where('id', $id)->first();
-        $opportunities = Opportunity::all();
         return response()->json([
-            'basic' => $basic,
-            'opportunities' => $opportunities,
-            'message' => 'Basic fetched successfully'
+            'succeed' => true,
+            'message' => 'Basic fetched successfully',
+            'data' => $basic,
         ], 200);
     }
 
@@ -147,12 +146,12 @@ class UserManagementController extends Controller
         }
         if($about){
             return response()->json([
-                'about data' => $about,
-                'types' => $types,
-                'opportunities' => $opportunities,
-                'response' => $response,
+                'succeed' => true,
                 'message' => 'About data fetched successfully', 
-                'status' => 200,
+                'data' => [
+                    'about data' => $about,
+                    'response' => $response,
+                ],
             ]);
         }else{
             return response()->json([
@@ -165,12 +164,18 @@ class UserManagementController extends Controller
     public function AdminOrganizationFinancial($id)
     {
         $financial = Financial::where('user_id', $id)->first();
-        $opportunities = Opportunity::all();
-        return response()->json([
-            'financial' => $financial,
-            'opportunities' => $opportunities,
-            'message' => 'Financial fetched successfully'
-        ], 200);
+        if ($financial) {
+            return response()->json([
+                'succeed' => true,
+                'message' => 'Financial fetched successfully',
+                'data' => $financial,
+            ], 200);
+        } else {
+            return response()->json([
+                'succeed' => false,
+                'message' => 'Financial data not found',
+            ], 404);
+        }
     }
 
     public function AdminOrganizationServices($id)
@@ -258,17 +263,16 @@ class UserManagementController extends Controller
         }
         // Get the benefit satisfaction data
         $benefitSatisfaction = BenefitSatisfaction::where('user_id', $id)->first();
-        // Get the opportunities data
-        $opportunities = Opportunity::all();
         // Return the response as JSON
         return response()->json([
-            'slideData' => $slideData,
-            'targetData' => $targetData,
-            'stagesData' => $response,
-            'benefitSatisfaction' => $benefitSatisfaction,
-            'opportunities' => $opportunities,
+            'succeed' => true,
             'message' => 'Services data fetched successfully',
-            'status' => 200,
+            'data' => [
+                'slideData' => $slideData,
+                'targetData' => $targetData,
+                'stagesData' => $response,
+                'benefitSatisfaction' => $benefitSatisfaction,
+            ],
         ]);
     }
 
@@ -287,7 +291,6 @@ class UserManagementController extends Controller
         $existingData = StaffInformation::where('user_id', $id)
                         ->get()
                         ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id']);
-        $opportunities = Opportunity::all();
     
         $staffDegreeData = [];
 
@@ -318,24 +321,18 @@ class UserManagementController extends Controller
         }
         if($id){
             return response()->json([
-                'nationalities' => $nationalities,
-                'genders' => $genders,
-                'ages' => $ages,
-                'regions' => $regions,
-                'contracts' => $contracts,
-                'degrees' => $degrees,
-                'operations' => $operations,
-                'accordings' => $accordings,
-                'staffOthers' => $staffOthers,
-                'staffRepresent' => $staffRepresent,
-                'existingData' => $existingData,
-                'opportunities' => $opportunities,
-                'staffDegreeData' => $staffDegreeData,
+                'succeed' => true,
                 'message' => 'Data fetched successfully',
-                'status' => 200
+                'data' => [
+                    'staffOthers' => $staffOthers,
+                    'staffRepresent' => $staffRepresent,
+                    'existingData' => $existingData,
+                    'staffDegreeData' => $staffDegreeData,
+                ],
             ]);
         }else{
             return response()->json([
+                'succeed' => false,
                 'message' => 'Data not found',
                 'status' => 404,
             ]);
@@ -357,15 +354,9 @@ class UserManagementController extends Controller
             ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id', 'according_id']);
     
         return response()->json([
-            'nationalities' => $nationalities,
-            'genders' => $genders,
-            'ages' => $ages,
-            'regions' => $regions,
-            'contracts' => $contracts,
-            'accordings' => $accordings,
-            'existingData' => $existingData,
+            'succeed' => true,
             'message' => 'Volunteers fetched successfully',
-            'status' => 200
+            'data' => $existingData,
         ]);
     }
 

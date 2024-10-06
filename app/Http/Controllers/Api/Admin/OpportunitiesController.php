@@ -22,16 +22,16 @@ class OpportunitiesController extends Controller
 
     public function SectoralOpportunities($id)
     {
-        $opportunities = Opportunity::all();
-        $opportunity_data = OpportunityData::where('opportunity_id', $id)->orderBy('id', 'DESC')->get();
+        $opportunity_data = OpportunityData::where('opportunity_id', $id)->with('status')->orderBy('id', 'DESC')->get();
         $opportunity = Opportunity::find($id);
         
         return response()->json([
-            'opportunities' => $opportunities,
-            'opportunity' => $opportunity,
-            'opportunity_data' => $opportunity_data,
+            'succeed' => true,
             'message' => 'Opportunity Data fetched successfully',
-            'status' => 200
+            'data' => [
+                'opportunity' => $opportunity,
+                'opportunity_data' => $opportunity_data,
+            ],
         ]);
     }
 
@@ -180,7 +180,6 @@ class OpportunitiesController extends Controller
 
     public function OpportunityEye($id)
     {
-        $opportunities = Opportunity::all();
         $opportunity_data = OpportunityData::find($id);
         $opportunity = Opportunity::where('id', $opportunity_data->opportunity_id)->first();
         // Fetch non-numeric questions
@@ -207,14 +206,17 @@ class OpportunitiesController extends Controller
         }
         
         return response()->json([
-            'opportunities' => $opportunities,
-            'opportunity' => $opportunity,
-            'opportunity_data' => $opportunity_data,
-            'question' => $question,
-            'questionNumeric' => $questionNumeric,
-            'status' => $status,
-            'answers' => $answers,       
-            'numericAnswer' => $numericNumbers, 
+            'succeed' => true,
+            'message' => 'Opportunity and questions fetched successfully.',
+            'data' => [
+                'opportunity' => $opportunity,
+                'opportunity_data' => $opportunity_data,
+                'question' => $question,
+                'questionNumeric' => $questionNumeric,
+                'status' => $status,
+                'answers' => $answers,       
+                'numericAnswer' => $numericNumbers, 
+            ],
         ], 200); // 200 OK
     }
 
@@ -317,7 +319,6 @@ class OpportunitiesController extends Controller
 
     public function OpportunityReport($id)
     {
-        $opportunities = Opportunity::all();
         $opportunity = OpportunityData::find($id);
         $status = OpportunityStatus::where('id', $opportunity->status_id)->first();
         $users = User::where('user_permission', 1)->count();
@@ -360,18 +361,21 @@ class OpportunitiesController extends Controller
         $users_NotQualification = User::whereIn('id', $userNotQualificationData->toArray())->get();
 
         return response()->json([
-            'opportunities' => $opportunities,
-            'opportunity' => $opportunity,
-            'status' => $status,
-            'users' => $users,
-            'usersNotInCount' => $usersNotInCount,
-            'usersInCount' => $usersInCount,
-            'userQualificationCount' => $userQualificationCount,
-            'userQualificationData' => $userQualificationData,
-            'users_Qualification' => $users_Qualification,
-            'userNotQualificationCount' => $userNotQualificationCount,
-            'userNotQualificationData' => $userNotQualificationData,
-            'users_NotQualification' => $users_NotQualification,
+            'succeed' => true,
+            'message' => 'Opportunity Report fetched successfully',
+            'data' => [
+                'opportunity' => $opportunity,
+                'status' => $status,
+                'users' => $users,
+                'usersNotInCount' => $usersNotInCount,
+                'usersInCount' => $usersInCount,
+                'userQualificationCount' => $userQualificationCount,
+                'userQualificationData' => $userQualificationData,
+                'users_Qualification' => $users_Qualification,
+                'userNotQualificationCount' => $userNotQualificationCount,
+                'userNotQualificationData' => $userNotQualificationData,
+                'users_NotQualification' => $users_NotQualification,
+            ],
         ]);
     }
     

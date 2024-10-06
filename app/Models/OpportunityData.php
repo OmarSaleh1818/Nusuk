@@ -17,4 +17,10 @@ class OpportunityData extends Model
 
     }
 
+    public function status() {
+
+        return $this->belongsTo(OpportunityStatus::class, 'status_id','id');
+
+    }
+
 }

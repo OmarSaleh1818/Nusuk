@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\Admin\NewsController;
 use App\Http\Controllers\Api\Admin\UserManagementController;
 use App\Http\Controllers\Api\Admin\OpportunitiesController;
 use App\Http\Controllers\Api\Admin\ApproveController;
+use App\Http\Controllers\Api\Admin\QualitativeEvaluations;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,12 +35,13 @@ use App\Http\Controllers\Api\Admin\ApproveController;
 
 /* -------------------- Admin -------------------------*/
 Route::post('/admin/login/owner', [AuthAdminController::class, 'Login']);
-Route::prefix('admin')->middleware('auth:admin')->group(function () {
+Route::prefix('admin')->middleware('auth:api')->group(function () {
 
     Route::get('/dashboard', [AuthAdminController::class, 'Dashboard']);
     Route::get('/management', [AuthAdminController::class, 'AdminManagement']);
     Route::post('/register/store', [AuthAdminController::class, 'AdminRegisterStore']);
     Route::get('/logout', [AuthAdminController::class, 'AdminLogout']);
+    Route::get('/permission', [AuthAdminController::class, 'AdminPermission']);
 
     /* -------------------- News -------------------------*/
         Route::get('/news/view', [NewsController::class, 'NewsView']);
@@ -83,7 +85,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     /* -------------------- End Approval Section -------------------------*/
 
     /* --------------------- Qualitative Evaluations -------------------------*/
-
+        Route::get('/qualitative/evaluations', [QualitativeEvaluations::class, 'QualitativeEvaluation']);
+        Route::post('/qualitative/evaluations/store', [QualitativeEvaluations::class, 'OrganizationEvaluationStore']);
     /* --------------------- End Qualitative Evaluations  -------------------------*/
 
 });
@@ -103,6 +106,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthUserController::class, 'logout'])->middleware('auth:sanctum');
         Route::get('/user', [AuthUserController::class, 'user'])->middleware('auth:sanctum');
+        Route::get('/user/permission', [AuthUserController::class, 'userPermission']);
 
         Route::get('/organization/dashboard', [DashboardController::class, 'DashboardView']);
 
@@ -141,7 +145,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         Route::get('/organization/staff/represent', [StaffController::class, 'OrganizationStaffRepresent']);
         Route::post('/organization/staff/represent/store', [StaffController::class, 'StaffRepresentStore']);
 
-        Route::get('/organization/staff/saudi/{id}', [StaffController::class, 'OrganizationStaffSaudi']);
+        Route::get('/organization/staff/saudi/consulting/contract/{id}', [StaffController::class, 'OrganizationStaffConsulting']);
+        Route::get('/organization/staff/saudi/fulltime/contract/{id}', [StaffController::class, 'OrganizationStaffFulltime']);
+        Route::get('/organization/staff/saudi/partTime/contract/{id}', [StaffController::class, 'OrganizationStaffpartTime']);
         Route::post('/organization/staff/saudi/store', [StaffController::class, 'StaffSaudiStore']);
 
         Route::get('/organization/staff/qualifications', [StaffController::class, 'OrganizationStaffQualifications']);

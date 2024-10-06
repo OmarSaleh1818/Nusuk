@@ -155,5 +155,23 @@ class AuthUserController extends Controller
         return response()->json(['message' => __($status)], 400);
     }
 
+    public function userPermission()
+    {
+        $user = auth()->user();
+        if($user){
+            $user_permission = $user->user_permission; 
+            
+            return response()->json([
+                'succeed' => true,
+                'message' => 'User permission fetched successfully',
+                'data' => $user_permission 
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Failed to fetch user',
+            ], 404); 
+        }
+    }
+
 
 }
