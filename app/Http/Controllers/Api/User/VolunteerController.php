@@ -18,13 +18,13 @@ use Illuminate\Support\Facades\DB;
 class VolunteerController extends Controller
 {
 
-    public function OrganizationVolunteersSaudi($id)
+    public function OrganizationVolunteersField($id)
     {
         $user_id = Auth::id();
         $saudiData = VolunteerInformation::where('user_id', $user_id)
-            ->where('nationality_id', $id) 
-            ->get()
-            ->groupBy(['nationality_id', 'gender_id', 'age_id', 'contract_id', 'region_id', 'according_id']);
+            ->where('nationality_id', $id)
+            ->where('contract_id', 1) 
+            ->get();
 
         if ($saudiData->isEmpty()) {
             return response()->json([
@@ -35,7 +35,73 @@ class VolunteerController extends Controller
 
         return response()->json([
             'succeed' => true,
-            'message' => 'Saudi Volunteers fetched successfully',
+            'message' => 'Saudi Volunteers Field fetched successfully',
+            'data' => $saudiData,
+        ]);
+    }
+
+    public function OrganizationVolunteersOffice($id)
+    {
+        $user_id = Auth::id();
+        $saudiData = VolunteerInformation::where('user_id', $user_id)
+            ->where('nationality_id', $id)
+            ->where('contract_id', 2) 
+            ->get();
+
+        if ($saudiData->isEmpty()) {
+            return response()->json([
+                'message' => 'No data found for the given nationality',
+                'status' => 404
+            ]);
+        }
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Saudi Volunteers Office fetched successfully',
+            'data' => $saudiData,
+        ]);
+    }
+
+    public function OrganizationVolunteersRemotely($id)
+    {
+        $user_id = Auth::id();
+        $saudiData = VolunteerInformation::where('user_id', $user_id)
+            ->where('nationality_id', $id)
+            ->where('contract_id', 3) 
+            ->get();
+
+        if ($saudiData->isEmpty()) {
+            return response()->json([
+                'message' => 'No data found for the given nationality',
+                'status' => 404
+            ]);
+        }
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Saudi Volunteers Remotely fetched successfully',
+            'data' => $saudiData,
+        ]);
+    }
+
+    public function OrganizationVolunteersIntegrated($id)
+    {
+        $user_id = Auth::id();
+        $saudiData = VolunteerInformation::where('user_id', $user_id)
+            ->where('nationality_id', $id)
+            ->where('contract_id', 4) 
+            ->get();
+
+        if ($saudiData->isEmpty()) {
+            return response()->json([
+                'message' => 'No data found for the given nationality',
+                'status' => 404
+            ]);
+        }
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Saudi Volunteers Integrated fetched successfully',
             'data' => $saudiData,
         ]);
     }

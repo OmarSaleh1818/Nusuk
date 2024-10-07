@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Apout;
 use App\Models\Opportunity;
 use App\Models\LocalType;
@@ -40,12 +41,19 @@ class AboutController extends Controller
     {
         $user_id = Auth::user()->id;
         $basic = User::where('id', $user_id)->first();
+        
         if($basic){
+            // Check if password is being updated
+            if($request->has('password') && $request->password != null){
+                $request->merge(['password' => Hash::make($request->password)]);
+            }
+
             $basic->update($request->all());
+
             return response()->json([
                 'succeed' => true,
                 'message' => 'Basic data updated successfully',
-                'basic data' => $basic,
+                'basic_data' => $basic,
             ]);
         }else{
             return response()->json([

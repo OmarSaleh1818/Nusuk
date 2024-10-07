@@ -34,9 +34,7 @@ class ServicesController extends Controller
                                 ->where('user_id', $user_id)
                                 ->first();
             $slideData[] = [
-                'slide_name' => $slide->slide_name,
-                'slide_id' => $slide->id,
-                'checked' => $servicesSlide ? true : false, // Whether the slide is selected
+                'id' => $servicesSlide ? $servicesSlide->id : null,
                 'outside_kingdom' => $servicesSlide ? (bool)$servicesSlide->outside_kingdom : false,
                 'inside_kingdom' => $servicesSlide ? (bool)$servicesSlide->inside_kingdom : false,
                 'female' => $servicesSlide ? (bool)$servicesSlide->female : false,
@@ -148,15 +146,15 @@ class ServicesController extends Controller
     }
 
     // Serveices for beneficiaries
-    public function OrganizationServices()
+    public function OrganizationServicesFirst()
     {
-       $user_id = Auth::user()->id;
+        $user_id = Auth::user()->id;
         // Get all stages with their businesses
-        $stages = Stage::with('businesses')->get();
+        $stages = Stage::take(5)->with('businesses')->get();
         $indicators = Indicator::all();
         $serviceImplemented = ServiceImplemented::where('user_id', $user_id)->get();
         $response = [];
-        
+
         foreach ($stages as $stage) {
             foreach ($stage->businesses as $business) {
                 foreach ($indicators as $indicator) {
@@ -164,16 +162,25 @@ class ServicesController extends Controller
                     $existing = $serviceImplemented->where('business_id', $business->id)
                                                     ->where('indicator_id', $indicator->id)
                                                     ->first();
-                    // Collect only the indicator data
-                    $response[] = [
-                        'indicator_name'    => $indicator->indicator_name,
-                        'seasonal_service'  => $existing->seasonal_service ?? null,
-                        'ongoing_service'   => $existing->ongoing_service ?? null,
-                        'initiatives'       => $existing->initiatives ?? null,
-                        'events'            => $existing->events ?? null,
-                        'business_id'       => $business->id,
-                        'indicator_id'      => $indicator->id,
-                    ];
+
+                    // Collect only the indicator data if any of the services are not null
+                    if ($existing && (
+                        $existing->seasonal_service !== null ||
+                        $existing->ongoing_service !== null ||
+                        $existing->initiatives !== null ||
+                        $existing->events !== null)) 
+                    {
+                        $response[] = [
+                            'id'                => $existing->id,
+                            'indicator_name'    => $indicator->indicator_name,
+                            'seasonal_service'  => $existing->seasonal_service,
+                            'ongoing_service'   => $existing->ongoing_service,
+                            'initiatives'       => $existing->initiatives,
+                            'events'            => $existing->events,
+                            'business_id'       => $business->id,
+                            'indicator_id'      => $indicator->id,
+                        ];
+                    }
                 }
             }
         }
@@ -183,9 +190,54 @@ class ServicesController extends Controller
             'message' => 'Indicators data fetched successfully',
             'data'    => $response,
         ]);
-    
-    
     }
+
+    public function OrganizationServicesSecond()
+    {
+        $user_id = Auth::user()->id;
+        // Get all stages with their businesses
+        $stages = Stage::skip(5)->take(2)->with('businesses')->get();
+        $indicators = Indicator::all();
+        $serviceImplemented = ServiceImplemented::where('user_id', $user_id)->get();
+        $response = [];
+
+        foreach ($stages as $stage) {
+            foreach ($stage->businesses as $business) {
+                foreach ($indicators as $indicator) {
+                    // Check if the service was implemented by the user for this business and indicator
+                    $existing = $serviceImplemented->where('business_id', $business->id)
+                                                    ->where('indicator_id', $indicator->id)
+                                                    ->first();
+
+                    // Collect only the indicator data if any of the services are not null
+                    if ($existing && (
+                        $existing->seasonal_service !== null ||
+                        $existing->ongoing_service !== null ||
+                        $existing->initiatives !== null ||
+                        $existing->events !== null)) 
+                    {
+                        $response[] = [
+                            'id'                => $existing->id,
+                            'indicator_name'    => $indicator->indicator_name,
+                            'seasonal_service'  => $existing->seasonal_service,
+                            'ongoing_service'   => $existing->ongoing_service,
+                            'initiatives'       => $existing->initiatives,
+                            'events'            => $existing->events,
+                            'business_id'       => $business->id,
+                            'indicator_id'      => $indicator->id,
+                        ];
+                    }
+                }
+            }
+        }
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Indicators data fetched successfully',
+            'data'    => $response,
+        ]);
+    }
+
 
     public function ServicesStore(Request $request)
     {

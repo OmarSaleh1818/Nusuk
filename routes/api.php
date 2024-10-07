@@ -134,7 +134,8 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         Route::get('/organization/services/target', [ServicesController::class, 'OrganizationServicesByTarget']);
         Route::post('/organization/services/target/store', [ServicesController::class, 'ServicesByTargetStore']);
 
-        Route::get('/organization/services', [ServicesController::class, 'OrganizationServices']);
+        Route::get('/organization/services/first', [ServicesController::class, 'OrganizationServicesFirst']);
+        Route::get('/organization/services/second', [ServicesController::class, 'OrganizationServicesSecond']);
         Route::post('/organization/services/store', [ServicesController::class, 'ServicesStore']);
 
         Route::get('/organization/services/satisfaction', [ServicesController::class, 'OrganizationServicesBySatisfaction']);
@@ -157,8 +158,14 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         Route::post('/organization/staff/other/store', [StaffController::class, 'StaffOtherStore']);
 
         /* -------------------- End Staff Data -------------------------*/
-        Route::get('/organization/volunteers/saudi/{id}', [VolunteerController::class, 'OrganizationVolunteersSaudi']);
+
+        /* -------------------- Volunteers Data -------------------------*/
+        Route::get('/organization/volunteers/field/{id}', [VolunteerController::class, 'OrganizationVolunteersField']);
+        Route::get('/organization/volunteers/office/{id}', [VolunteerController::class, 'OrganizationVolunteersOffice']);
+        Route::get('/organization/volunteers/remotely/{id}', [VolunteerController::class, 'OrganizationVolunteersRemotely']);
+        Route::get('/organization/volunteers/integrated/{id}', [VolunteerController::class, 'OrganizationVolunteersIntegrated']);
         Route::post('/organization/volunteer/store', [VolunteerController::class, 'VolunteerStore']);
+        /* -------------------- End Volunteers Data -------------------------*/
 
         /* -------------------- Organization User -------------------------*/
         Route::get('/organization/user/management/{id}', [OrganizationUsersController::class, 'OrganizationUserManagement']);
