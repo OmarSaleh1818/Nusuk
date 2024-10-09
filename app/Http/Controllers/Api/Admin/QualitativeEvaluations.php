@@ -62,6 +62,69 @@ class QualitativeEvaluations extends Controller
 
     }
 
+    public function QualitativeEvaluationResult(Request $request)
+    {
+        $opportunityDataId = $request->input('opportunityData_id');
+        $userId = $request->input('user_id');
+
+        if (!$opportunityDataId || !$userId) {
+            return response()->json(['error' => 'Missing required fields'], 400);
+        }
+
+        $evaluations = OrganizationEvaluation::where('opportunityData_id', $opportunityDataId)
+            ->where('user_id', $userId)
+            ->with(['aspect', 'choice']) 
+            ->get();
+
+        if ($evaluations->isEmpty()) {
+            return response()->json([
+                'succeed' => false,
+                'message' => 'No evaluation data found for the given opportunity and user',
+                'data' => []
+            ], 404);
+        }
+
+        $totalValue = 0;  
+        $totalAspects = 0;  
+
+        foreach ($evaluations as $evaluation) {
+            if ($evaluation->choice->value > 0) {
+                
+                $totalValue += $evaluation->choice->value;
+                
+                $totalAspects++;
+            }
+        }
+
+        // Multiply the total aspects count by 5
+        $totalAspectsMultiplied = $totalAspects * 5;
+
+        // Calculate the final evaluation result
+        $evaluationResult = 0;
+        if ($totalAspectsMultiplied > 0) {
+            $evaluationResult = ($totalValue / $totalAspectsMultiplied) * 100;
+        }
+
+        // Format and return the data
+        $data = $evaluations->map(function ($evaluation) {
+            return [
+                'opportunityData_id' => $evaluation->opportunityData_id,
+                'evaluation_aspect_id' => $evaluation->evaluation_aspect_id,
+                'evaluation_aspect' => $evaluation->aspect->name, 
+                'evaluation_choice_id' => $evaluation->evaluation_choice_id,
+                'evaluation_choice' => $evaluation->choice->name,
+                'evaluation_choice_value' => $evaluation->choice->value
+            ];
+        });
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'The data and result fetched successfully',
+            'evaluation_result' => $evaluationResult,
+            'data' => $data
+        ], 200);
+    }
+
 
 
 }

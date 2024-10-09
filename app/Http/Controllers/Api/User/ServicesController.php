@@ -149,45 +149,43 @@ class ServicesController extends Controller
     public function OrganizationServicesFirst()
     {
         $user_id = Auth::user()->id;
+
         // Get all stages with their businesses
         $stages = Stage::take(5)->with('businesses')->get();
         $indicators = Indicator::all();
         $serviceImplemented = ServiceImplemented::where('user_id', $user_id)->get();
+        
         $response = [];
 
         foreach ($stages as $stage) {
             foreach ($stage->businesses as $business) {
+                $businessData = [
+            
+                    'indicators'    => []
+                ];
+
                 foreach ($indicators as $indicator) {
                     // Check if the service was implemented by the user for this business and indicator
                     $existing = $serviceImplemented->where('business_id', $business->id)
-                                                    ->where('indicator_id', $indicator->id)
-                                                    ->first();
+                                                ->where('indicator_id', $indicator->id)
+                                                ->first();
 
-                    // Collect only the indicator data if any of the services are not null
-                    if ($existing && (
-                        $existing->seasonal_service !== null ||
-                        $existing->ongoing_service !== null ||
-                        $existing->initiatives !== null ||
-                        $existing->events !== null)) 
-                    {
-                        $response[] = [
-                            'id'                => $existing->id,
-                            'indicator_name'    => $indicator->indicator_name,
-                            'seasonal_service'  => $existing->seasonal_service,
-                            'ongoing_service'   => $existing->ongoing_service,
-                            'initiatives'       => $existing->initiatives,
-                            'events'            => $existing->events,
-                            'business_id'       => $business->id,
-                            'indicator_id'      => $indicator->id,
-                        ];
-                    }
+                    $businessData['indicators'][] = [
+                    
+                        'seasonal_service' => $existing ? $existing->seasonal_service : null,
+                        'ongoing_service'  => $existing ? $existing->ongoing_service : null,
+                        'initiatives'      => $existing ? $existing->initiatives : null,
+                        'events'           => $existing ? $existing->events : null,
+                    ];
                 }
+
+                $response[] = $businessData;
             }
         }
 
         return response()->json([
             'succeed' => true,
-            'message' => 'Indicators data fetched successfully',
+            'message' => 'Service First data fetched successfully',
             'data'    => $response,
         ]);
     }
@@ -195,45 +193,41 @@ class ServicesController extends Controller
     public function OrganizationServicesSecond()
     {
         $user_id = Auth::user()->id;
-        // Get all stages with their businesses
+    
         $stages = Stage::skip(5)->take(2)->with('businesses')->get();
-        $indicators = Indicator::all();
+        $indicators = Indicator::all(); // Get all indicators
         $serviceImplemented = ServiceImplemented::where('user_id', $user_id)->get();
         $response = [];
 
         foreach ($stages as $stage) {
             foreach ($stage->businesses as $business) {
+                $indicatorData = [];
+                
                 foreach ($indicators as $indicator) {
                     // Check if the service was implemented by the user for this business and indicator
                     $existing = $serviceImplemented->where('business_id', $business->id)
-                                                    ->where('indicator_id', $indicator->id)
-                                                    ->first();
-
-                    // Collect only the indicator data if any of the services are not null
-                    if ($existing && (
-                        $existing->seasonal_service !== null ||
-                        $existing->ongoing_service !== null ||
-                        $existing->initiatives !== null ||
-                        $existing->events !== null)) 
-                    {
-                        $response[] = [
-                            'id'                => $existing->id,
-                            'indicator_name'    => $indicator->indicator_name,
-                            'seasonal_service'  => $existing->seasonal_service,
-                            'ongoing_service'   => $existing->ongoing_service,
-                            'initiatives'       => $existing->initiatives,
-                            'events'            => $existing->events,
-                            'business_id'       => $business->id,
-                            'indicator_id'      => $indicator->id,
-                        ];
-                    }
+                                                ->where('indicator_id', $indicator->id)
+                                                ->first();
+                    
+                    $indicatorData[] = [
+                        'seasonal_service'  => $existing ? $existing->seasonal_service : null,
+                        'ongoing_service'   => $existing ? $existing->ongoing_service : null ,
+                        'initiatives'       => $existing ? $existing->initiatives : null,
+                        'events'            => $existing ? $existing->events : null,
+                    ];
+                }
+                
+                if (!empty($indicatorData)) {
+                    $response[] = [
+                        'indicators'    => $indicatorData,  
+                    ];
                 }
             }
         }
 
         return response()->json([
             'succeed' => true,
-            'message' => 'Indicators data fetched successfully',
+            'message' => 'Indicators data grouped by business fetched successfully',
             'data'    => $response,
         ]);
     }

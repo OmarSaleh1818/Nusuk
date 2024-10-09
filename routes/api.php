@@ -87,6 +87,7 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
     /* --------------------- Qualitative Evaluations -------------------------*/
         Route::get('/qualitative/evaluations', [QualitativeEvaluations::class, 'QualitativeEvaluation']);
         Route::post('/qualitative/evaluations/store', [QualitativeEvaluations::class, 'OrganizationEvaluationStore']);
+        Route::get('/qualitative/evaluations/result', [QualitativeEvaluations::class, 'QualitativeEvaluationResult']);
     /* --------------------- End Qualitative Evaluations  -------------------------*/
 
 });

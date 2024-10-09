@@ -19,7 +19,7 @@ class FinancialController extends Controller
             return response()->json([
             'succeed' => true,
             'message' => 'Financial data fetched successfully',
-            'financial data' => $financial,
+            'data' => $financial,
         ]);
         }else{
             return response()->json([
@@ -42,7 +42,7 @@ class FinancialController extends Controller
         return response()->json([
             'succeed' => true,
             'message' => 'Financial data updated successfully',
-            'financial data' => $financial,
+            'data' => $financial,
         ]);
     }
 
