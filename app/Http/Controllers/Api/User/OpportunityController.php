@@ -33,9 +33,7 @@ class OpportunityController extends Controller
 
         $user_id = Auth::user()->id;
 
-        $data = [
-            'opportunityData' => [],
-        ];
+        $data = [];
 
         // Loop through each opportunityData and get only the organization status value
         foreach ($opportunityData as $opportunityItem) {
@@ -44,7 +42,7 @@ class OpportunityController extends Controller
                 ->first();
 
             // Directly retrieve the value of the status column if it exists
-            $data['opportunityData'][] = [
+            $data[] = [
                 'title' => $opportunityItem->title,
                 'side' => $opportunityItem->side,
                 'deadline_apply' => $opportunityItem->deadline_apply,

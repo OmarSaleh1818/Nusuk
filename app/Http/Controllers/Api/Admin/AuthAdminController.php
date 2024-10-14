@@ -121,18 +121,42 @@ class AuthAdminController extends Controller
     public function AdminPermission()
     {
         $admin = auth()->guard('api')->user(); 
-
-        if($admin){
-            $admin_permission = $admin->status; // Get the admin_permission field
+        $user = auth()->user();
+        if($admin->status == 0){
 
             return response()->json([
+                'succeed' => true,
                 'message' => 'Admin permission fetched successfully',
-                'data' => $admin_permission // Return the admin_permission
+                'data' => 'admin' 
+            ]);
+        } elseif($admin->status == 1) {
+            return response()->json([
+                'succeed' => true,
+                'message' => 'Admin permission fetched successfully',
+                'data' => 'super' 
             ]);
         } else {
             return response()->json([
                 'message' => 'Failed to fetch admin',
             ], 404); // Return 404 status if no admin is found
+        }
+        if($user->user_permission == 1){
+            
+            return response()->json([
+                'succeed' => true,
+                'message' => 'User permission fetched successfully',
+                'data' => 'user' 
+            ]);
+        } elseif($user->user_permission == 2) {
+            return response()->json([
+                'succeed' => true,
+                'message' => 'User permission fetched successfully',
+                'data' => 'user_orgnization' 
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Failed to fetch user',
+            ], 404); 
         }
     }
 

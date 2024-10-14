@@ -98,7 +98,9 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
     Route::post('/register', [AuthUserController::class, 'register']);
     Route::post('/forgot-password', [AuthUserController::class, 'forgotPassword']);
     Route::post('/reset-password', [AuthUserController::class, 'resetPassword']);
-
+    
+    Route::get('/user/permission', [AuthUserController::class, 'userPermission']);
+    
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::post('/contact-us', [ContactUsController::class, 'submit']);
     Route::get('/news/archive', [DashboardController::class, 'NewsArchive']);
@@ -107,7 +109,7 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthUserController::class, 'logout'])->middleware('auth:sanctum');
         Route::get('/user', [AuthUserController::class, 'user'])->middleware('auth:sanctum');
-        Route::get('/user/permission', [AuthUserController::class, 'userPermission']);
+        
 
         Route::get('/organization/dashboard', [DashboardController::class, 'DashboardView']);
 

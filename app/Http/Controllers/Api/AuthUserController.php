@@ -157,20 +157,55 @@ class AuthUserController extends Controller
 
     public function userPermission()
     {
-        $user = auth()->user();
-        if($user){
-            $user_permission = $user->user_permission; 
-            
-            return response()->json([
-                'succeed' => true,
-                'message' => 'User permission fetched successfully',
-                'data' => $user_permission 
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'Failed to fetch user',
-            ], 404); 
+        $admin = auth()->guard('api')->user(); 
+        $user = auth()->guard('sanctum')->user();
+
+        // Check if admin is authenticated
+        if ($admin) {
+            if ($admin->status == 0) {
+                return response()->json([
+                    'succeed' => true,
+                    'message' => 'Admin permission fetched successfully',
+                    'data' => 'admin'
+                ]);
+            } elseif ($admin->status == 1) {
+                return response()->json([
+                    'succeed' => true,
+                    'message' => 'Admin permission fetched successfully',
+                    'data' => 'super'
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'Failed to fetch admin',
+                ], 404); // Return 404 if the admin is not found
+            }
         }
+
+        // Check if user is authenticated
+        if ($user) {
+            if ($user->user_permission == 1) {
+                return response()->json([
+                    'succeed' => true,
+                    'message' => 'User permission fetched successfully',
+                    'data' => 'user'
+                ]);
+            } elseif ($user->user_permission == 2) {
+                return response()->json([
+                    'succeed' => true,
+                    'message' => 'User permission fetched successfully',
+                    'data' => 'user_organization'
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'Failed to fetch user',
+                ], 404); 
+            }
+        }
+
+        // Return 404 if neither admin nor user is authenticated
+        return response()->json([
+            'message' => 'No user or admin authenticated',
+        ], 404);
     }
 
 
