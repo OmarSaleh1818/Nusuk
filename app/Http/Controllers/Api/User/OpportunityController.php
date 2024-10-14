@@ -27,13 +27,38 @@ class OpportunityController extends Controller
     public function OrganizationOpportunity($id)
     {
         $opportunity = Opportunity::find($id);
-        $opportunityData = OpportunityData::where('opportunity_id', $id)->orderBy('id', 'DESC')->with('opportunity')->get();
-        if($opportunity){
+        $opportunityData = OpportunityData::where('opportunity_id', $id)
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        $user_id = Auth::user()->id;
+
+        $data = [
+            'opportunityData' => [],
+        ];
+
+        // Loop through each opportunityData and get only the organization status value
+        foreach ($opportunityData as $opportunityItem) {
+            $user_status = UserOpportunityStatus::where('opportunity_id', $opportunityItem->id)
+                ->where('user_id', $user_id)
+                ->first();
+
+            // Directly retrieve the value of the status column if it exists
+            $data['opportunityData'][] = [
+                'title' => $opportunityItem->title,
+                'side' => $opportunityItem->side,
+                'deadline_apply' => $opportunityItem->deadline_apply,
+                'status' => $opportunityItem->status_id,
+                'organization_status' => $user_status ? $user_status->status : null // Direct status value
+            ];
+        }
+
+        if ($opportunity) {
             return response()->json([
                 'succeed' => true,
                 'message' => 'Opportunity fetched successfully',
-                'data' => $opportunityData,
-                ]);
+                'data' => $data,
+            ]);
         } else {
             return response()->json([
                 'succeed' => false,
@@ -46,7 +71,7 @@ class OpportunityController extends Controller
     public function OrganizationOpportunityEye($id)
     {
         $user_id = Auth::user()->id;
-        $user_status = UserOpportunityStatus::where('opportunity_id', $id)->where('user_id', $user_id)->with('status')->first();
+        $user_status = UserOpportunityStatus::where('opportunity_id', $id)->where('user_id', $user_id)->with('SharingStatus')->first();
         
         // Initialize displayStatus to null to avoid undefined variable error
         $displayStatus = null;
@@ -120,7 +145,7 @@ class OpportunityController extends Controller
         $status = $request->organization_status;
     
         // Use updateOrCreate to update existing record or create a new one
-        $userOpportunityStatus = UserOpportunityStatus::with('status')->updateOrCreate(
+        $userOpportunityStatus = UserOpportunityStatus::with('SharingStatus')->updateOrCreate(
             [
                 'user_id' => $user_id,
                 'opportunity_id' => $opportunity_id

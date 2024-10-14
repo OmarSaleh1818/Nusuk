@@ -144,7 +144,8 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         /* -------------------- End Services Data -------------------------*/
         
         /* -------------------- staff Data -------------------------*/
-        Route::get('/organization/staff/represent', [StaffController::class, 'OrganizationStaffRepresent']);
+        Route::get('/organization/staff/represent/ceo', [StaffController::class, 'OrganizationStaffRepresentCEO']);
+        Route::get('/organization/staff/represent/notceo', [StaffController::class, 'OrganizationStaffRepresentNotCEO']);
         Route::post('/organization/staff/represent/store', [StaffController::class, 'StaffRepresentStore']);
 
         Route::get('/organization/staff/saudi/consulting/contract/{id}', [StaffController::class, 'OrganizationStaffConsulting']);
@@ -152,7 +153,9 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         Route::get('/organization/staff/saudi/partTime/contract/{id}', [StaffController::class, 'OrganizationStaffpartTime']);
         Route::post('/organization/staff/saudi/store', [StaffController::class, 'StaffSaudiStore']);
 
-        Route::get('/organization/staff/qualifications', [StaffController::class, 'OrganizationStaffQualifications']);
+        Route::get('/organization/staff/qualifications/opportunities', [StaffController::class, 'OrganizationStaffOpportunities']);
+        Route::get('/organization/staff/qualifications/certificates', [StaffController::class, 'OrganizationStaffCertificates']);
+        Route::get('/organization/staff/qualifications/work', [StaffController::class, 'OrganizationStaffWork']);
         Route::post('/organization/staff/qualifications/store', [StaffController::class, 'StaffQualificationsStore']);
 
         Route::get('/organization/staff/other', [StaffController::class, 'OrganizationStaffOther']);

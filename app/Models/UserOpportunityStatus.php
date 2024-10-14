@@ -23,7 +23,7 @@ class UserOpportunityStatus extends Model
 
     }
 
-    public function status() {
+    public function SharingStatus() {
 
         return $this->belongsTo(SharingStatus::class, 'status','id');
 

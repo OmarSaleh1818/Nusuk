@@ -24,14 +24,48 @@ class StaffController extends Controller
 {
 
     // ------------- StaffRepresent Data -------------
-    public function OrganizationStaffRepresent()
+
+    public function OrganizationStaffRepresentCEO()
     {
         $user_id = Auth::user()->id;
         $staffRepresent = StaffRepresent::where('user_id', $user_id)->first();
+        $data = [
+            'name_ceo' => $staffRepresent->name_ceo,
+            'family_ceo' => $staffRepresent->family_ceo,
+            'position_ceo' => $staffRepresent->position_ceo,
+            'year_ceo' => $staffRepresent->year_ceo,
+            'mobile_ceo' => $staffRepresent->mobile_ceo,
+            'email_ceo' => $staffRepresent->email_ceo,
+            'link_ceo' => $staffRepresent->link_ceo,
+            'age_ceo' => $staffRepresent->age_ceo,
+            'education_ceo' => $staffRepresent->education_ceo,
+        ];
          return response()->json([
             'succeed' => true,
             'message' => 'Staff Represent fetched successfully',
-            'data' => $staffRepresent
+            'data' => $data
+        ]);
+    }
+
+    public function OrganizationStaffRepresentNotCEO()
+    {
+        $user_id = Auth::user()->id;
+        $staffRepresent = StaffRepresent::where('user_id', $user_id)->first();
+        $data = [
+            'name_notCeo' => $staffRepresent->name_notCeo,
+            'family_notCeo' => $staffRepresent->family_notCeo,
+            'position_notCeo' => $staffRepresent->position_notCeo,
+            'year_notCeo' => $staffRepresent->year_notCeo,
+            'mobile_notCeo' => $staffRepresent->mobile_notCeo,
+            'email_notCeo' => $staffRepresent->email_notCeo,
+            'link_notCeo' => $staffRepresent->link_notCeo,
+            'age_notCeo' => $staffRepresent->age_notCeo,
+            'education_notCeo' => $staffRepresent->education_notCeo,
+        ];
+         return response()->json([
+            'succeed' => true,
+            'message' => 'Staff Represent fetched successfully',
+            'data' => $data
         ]);
     }
 
@@ -195,15 +229,19 @@ class StaffController extends Controller
 
     // ------------- Staff Qualifications Data -------------
 
-    public function OrganizationStaffQualifications()
+    public function OrganizationStaffOpportunities()
     {
         $user_id = Auth::user()->id;
         $degrees = Degree::all();
         $operations = Operation::all();
-    
+        
         $staffDegreeData = [];
 
         foreach ($degrees as $degree) {
+            $degreeData = [
+                'operations' => []
+            ];
+
             foreach ($operations as $operation) {
                 // Get the existing data for the current degree and operation
                 $staffDegree = StaffDegree::where('user_id', $user_id)
@@ -211,26 +249,97 @@ class StaffController extends Controller
                     ->where('operation_id', $operation->id)
                     ->first();
 
-                // Structure the data for the API response
-                $staffDegreeData[] = [
-                    'degree_name' => $degree->degree_name,
-                    'operation_name' => $operation->operation_name,
+                $operationData = [
                     'engaged' => $staffDegree->engaged ?? null,
                     'not_engaged' => $staffDegree->not_engaged ?? null,
+                ];
+
+                $degreeData['operations'][] = $operationData;
+            }
+
+            $staffDegreeData[] = $degreeData;
+        }
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Qualifications Opportunities Data fetched successfully',
+            'data' => $staffDegreeData,
+        ]);
+    }
+
+    public function OrganizationStaffCertificates()
+    {
+        $user_id = Auth::user()->id;
+        $degrees = Degree::all();
+        $operations = Operation::all();
+        
+        $staffDegreeData = [];
+
+        foreach ($degrees as $degree) {
+            $degreeData = [
+                'operations' => []
+            ];
+
+            foreach ($operations as $operation) {
+                // Get the existing data for the current degree and operation
+                $staffDegree = StaffDegree::where('user_id', $user_id)
+                    ->where('degree_id', $degree->id)
+                    ->where('operation_id', $operation->id)
+                    ->first();
+
+                $operationData = [
                     'certified' => $staffDegree->certified ?? null,
                     'not_certified' => $staffDegree->not_certified ?? null,
+                ];
+
+                $degreeData['operations'][] = $operationData;
+            }
+
+            $staffDegreeData[] = $degreeData;
+        }
+
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Qualifications Certificates Data fetched successfully',
+            'data' => $staffDegreeData,
+        ]);
+    }
+
+    public function OrganizationStaffWork()
+    {
+        $user_id = Auth::user()->id;
+        $degrees = Degree::all();
+        $operations = Operation::all();
+        
+        $staffDegreeData = [];
+
+        foreach ($degrees as $degree) {
+            $degreeData = [
+                'operations' => []
+            ];
+
+            foreach ($operations as $operation) {
+                // Get the existing data for the current degree and operation
+                $staffDegree = StaffDegree::where('user_id', $user_id)
+                    ->where('degree_id', $degree->id)
+                    ->where('operation_id', $operation->id)
+                    ->first();
+
+                $operationData = [
                     'office_work' => $staffDegree->office_work ?? null,
                     'field_work' => $staffDegree->field_work ?? null,
                     'mixed_work' => $staffDegree->mixed_work ?? null,
-                    'total' => $staffDegree->total ?? null,
-                    'degree_id' => $degree->id,
-                    'operation_id' => $operation->id
                 ];
+
+                $degreeData['operations'][] = $operationData;
             }
+
+            $staffDegreeData[] = $degreeData;
         }
+
         return response()->json([
             'succeed' => true,
-            'message' => 'Qualifications Data fetched successfully',
+            'message' => 'Qualifications Work Data fetched successfully',
             'data' => $staffDegreeData,
         ]);
     }
