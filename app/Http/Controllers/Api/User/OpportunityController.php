@@ -47,7 +47,7 @@ class OpportunityController extends Controller
                 'side' => $opportunityItem->side,
                 'deadline_apply' => $opportunityItem->deadline_apply,
                 'status' => $opportunityItem->status_id,
-                'organization_status' => $user_status ? $user_status->status : null // Direct status value
+                'organization_status' => $user_status ? $user_status->status : null 
             ];
         }
 

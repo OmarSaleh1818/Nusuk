@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\User\OpportunityController;
 use App\Http\Controllers\Api\User\PartnershipsController;
 use App\Http\Controllers\Api\User\AppreciationController;
 use App\Http\Controllers\Api\User\GovernanceController;
+use App\Http\Controllers\Api\User\ChallengesController;
 use App\Http\Controllers\Api\Admin\AuthAdminController;
 use App\Http\Controllers\Api\Admin\NewsController;
 use App\Http\Controllers\Api\Admin\UserManagementController;
@@ -218,6 +219,11 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         Route::get('/organization/governance/view', [GovernanceController::class, 'GovernanceView']);
         Route::post('/organization/governance/store', [GovernanceController::class, 'GovernanceStore']);
         // -------------------- End Governance -------------------------*/
+
+        // -------------------- Sectoral challenges -------------------------*/
+        Route::get('/organization/sectoral/challenges/view', [ChallengesController::class, 'SectoralChallengesView']);
+        Route::post('/organization/sectoral/challenges/store', [ChallengesController::class, 'SectoralChallengesStore']);
+        // -------------------- End Sectoral challenges -------------------------*/
     });
 
 

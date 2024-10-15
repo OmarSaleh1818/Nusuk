@@ -23,17 +23,29 @@ class PartnershipsController extends Controller
                                 ->with('type', 'status') 
                                 ->get();
     
+        $data =[];
         if ($partnerships->isEmpty()) {
             return response()->json([
                 'message' => 'No partnerships found',
                 'status' => 404,
             ], 404);
         }
+        foreach($partnerships as $item) {
+            $data[] = [
+                'partnership_topic' => $item->partnership_topic,
+                'partnership_side' => $item->partnership_side,
+                'partnership_type' => $item->partnership_type,
+                'start_date' => $item->start_date,
+                'end_date' => $item->end_date,
+                'partnership_status' => $item->partnership_status,
+            ];
+        }
 
+       
         return response()->json([
             'succeed' => true,
             'message' => 'Partnerships fetched successfully',
-            'data' => $partnerships,
+            'data' => $data,
         ], 200);
 
     }
