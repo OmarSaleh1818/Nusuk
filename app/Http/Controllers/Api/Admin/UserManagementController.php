@@ -39,6 +39,9 @@ use App\Models\VolunteerContract;
 use App\Models\VolunteerRegion;
 use App\Models\VolunteerInformation;
 use App\Models\ContractVolunteer;
+use App\Models\OrganizationGap;
+use App\Models\OrganizationChallenge;
+
 
 
 
@@ -360,6 +363,70 @@ class UserManagementController extends Controller
         ]);
     }
 
+    public function SectoralChallenges($id)
+    {
+
+        $organizationGap = OrganizationGap::where('user_id', $id)
+        ->get();
+        $data =[];
+
+        foreach($organizationGap as $item)
+        {
+            $data[] = [
+                'sub_aspect_id' => $item->sub_aspect_id,
+                'gap_id' => $item->gap_id,
+            ];
+        }
+
+        if ($organizationGap->isNotEmpty()) {
+            return response()->json([
+                'succeed' => true,
+                'message' => 'Sectoral challenges fetched successfully',
+                'data' => $data
+                
+            ]);
+        } else {
+            return response()->json([
+                'succeed' => true,
+                'message' => 'No sectoral challenges found for this organization',
+                'data' => [
+                    'organizationGaps' => 'null'
+                ]
+            ]);
+        }
+    }
+
+    public function InstituationalChallenges($id)
+    {
+        $organizationChalleng = OrganizationChallenge::where('user_id', $id)
+        ->get();
+        $data =[];
+
+        foreach($organizationChalleng as $item)
+        {
+            $data[] = [
+                'institutional_challenge_id' => $item->institutional_challenge_id,
+                'challenge_id' => $item->challenge_id,
+            ];
+        }
+
+        if ($organizationChalleng->isNotEmpty()) {
+            return response()->json([
+                'succeed' => true,
+                'message' => 'Instituational challenges fetched successfully',
+                'data' => $data
+                
+            ]);
+        } else {
+            return response()->json([
+                'succeed' => true,
+                'message' => 'No sectoral challenges found for this organization',
+                'data' => [
+                    'organizationChalleng' => 'null'
+                ]
+            ]);
+        }
+    }
     
 
 

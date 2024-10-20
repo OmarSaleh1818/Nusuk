@@ -22,6 +22,8 @@ use App\Http\Controllers\Api\Admin\UserManagementController;
 use App\Http\Controllers\Api\Admin\OpportunitiesController;
 use App\Http\Controllers\Api\Admin\ApproveController;
 use App\Http\Controllers\Api\Admin\QualitativeEvaluations;
+use App\Http\Controllers\Api\Admin\IndicatorsController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -66,6 +68,9 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         Route::get('/organization/services/{id}', [UserManagementController::class, 'AdminOrganizationServices']);
         Route::get('/organization/staff/{id}', [UserManagementController::class, 'AdminOrganizationStaff']);
         Route::get('/organization/volunteers/{id}', [UserManagementController::class, 'AdminOrganizationVolunteers']);
+
+        Route::get('/organization/sectoral/challenges/{id}', [UserManagementController::class, 'SectoralChallenges']);
+        Route::get('/organization/instituational/challenges/{id}', [UserManagementController::class, 'InstituationalChallenges']);
     /* -------------------- End User Management -------------------------*/
 
     /* -------------------- Opportunities -------------------------*/
@@ -90,6 +95,13 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         Route::post('/qualitative/evaluations/store', [QualitativeEvaluations::class, 'OrganizationEvaluationStore']);
         Route::get('/qualitative/evaluations/result', [QualitativeEvaluations::class, 'QualitativeEvaluationResult']);
     /* --------------------- End Qualitative Evaluations  -------------------------*/
+
+    /* --------------------- Private Indicators  -------------------------*/
+        Route::get('/private/indicators', [IndicatorsController::class, 'PrivateIndicators']);
+        Route::post('/private/indicators/store', [IndicatorsController::class, 'PrivateIndicatorsStore']);
+    /* --------------------- End Private Indicators  -------------------------*/
+
+
 
 });
 /* -------------------- End Admin -------------------------*/
@@ -224,6 +236,11 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         Route::get('/organization/sectoral/challenges/view', [ChallengesController::class, 'SectoralChallengesView']);
         Route::post('/organization/sectoral/challenges/store', [ChallengesController::class, 'SectoralChallengesStore']);
         // -------------------- End Sectoral challenges -------------------------*/
+
+        // -------------------- Instituational challenges -------------------------*/
+        Route::get('/organization/instituational/challenges/view', [ChallengesController::class, 'InstituationalChallengesView']);
+        Route::post('/organization/nstituational/challenges/store', [ChallengesController::class, 'InstituationalChallengesStore']);
+        // -------------------- End Instituational challenges -------------------------*/
     });
 
 
