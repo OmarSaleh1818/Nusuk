@@ -31,6 +31,7 @@ class ChallengesController extends Controller
             $data[] = [
                 'sub_aspect_id' => $item->sub_aspect_id,
                 'gap_id' => $item->gap_id,
+                'season_id' => $item->season_id
             ];
         }
 
@@ -58,12 +59,13 @@ class ChallengesController extends Controller
         $user_id = Auth::user()->id;
 
         $gaps = $request->input('gaps'); 
+        $seasonId = $request->input('season_id'); 
 
         foreach ($gaps as $aspectId => $gapId) {
             // Update or create the user's choice for this side
             OrganizationGap::updateOrCreate(
                 ['user_id' => $user_id, 'sub_aspect_id' => $aspectId],
-                ['gap_id' => $gapId]
+                ['gap_id' => $gapId, 'season_id' => $seasonId]
             );
         }
 
@@ -86,6 +88,7 @@ class ChallengesController extends Controller
             $data[] = [
                 'institutional_challenge_id' => $item->institutional_challenge_id,
                 'challenge_id' => $item->challenge_id,
+                 'season_id' => $item->season_id
             ];
         }
 
@@ -113,11 +116,12 @@ class ChallengesController extends Controller
         $user_id = Auth::user()->id;
 
         $challenges = $request->input('challenges'); 
+        $seasonId = $request->input('season_id'); 
 
         foreach ($challenges as $institutionalId => $challengeId) {
             OrganizationChallenge::updateOrCreate(
                 ['user_id' => $user_id, 'institutional_challenge_id' => $institutionalId],
-                ['challenge_id' => $challengeId]
+                ['challenge_id' => $challengeId, 'season_id' => $seasonId]
             );
         }
 
