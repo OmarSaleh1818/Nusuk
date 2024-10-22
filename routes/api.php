@@ -233,13 +233,13 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         // -------------------- End Governance -------------------------*/
 
         // -------------------- Sectoral challenges -------------------------*/
-        Route::get('/organization/sectoral/challenges/view', [ChallengesController::class, 'SectoralChallengesView']);
-        Route::post('/organization/sectoral/challenges/store', [ChallengesController::class, 'SectoralChallengesStore']);
+        Route::get('/organization/sectoral/challenges/view/{id}', [ChallengesController::class, 'SectoralChallengesView']);
+        Route::post('/organization/sectoral/challenges/store/{id}', [ChallengesController::class, 'SectoralChallengesStore']);
         // -------------------- End Sectoral challenges -------------------------*/
 
         // -------------------- Instituational challenges -------------------------*/
-        Route::get('/organization/instituational/challenges/view', [ChallengesController::class, 'InstituationalChallengesView']);
-        Route::post('/organization/nstituational/challenges/store', [ChallengesController::class, 'InstituationalChallengesStore']);
+        Route::get('/organization/instituational/challenges/view/{id}', [ChallengesController::class, 'InstituationalChallengesView']);
+        Route::post('/organization/nstituational/challenges/store/{id}', [ChallengesController::class, 'InstituationalChallengesStore']);
         // -------------------- End Instituational challenges -------------------------*/
     });
 
