@@ -12,6 +12,11 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use App\Mail\ResetPasswordCodeMail;
 
 class AuthUserController extends Controller
 {
@@ -111,48 +116,64 @@ class AuthUserController extends Controller
     // Forgot Password
     public function forgotPassword(Request $request)
     {
+        // Validate the email input
         $request->validate(['email' => 'required|email']);
 
-        $status = Password::sendResetLink($request->only('email'));
+        // Generate a 6-digit code
+        $code = rand(100000, 999999);
 
-        if ($status == Password::RESET_LINK_SENT) {
-            return response()->json([
-                'status' => $status, 
-                'message' => 'Password reset link sent successfully.'
-            ], 200);
-        }
+        // Store the code in the password_reset_codes table
+        DB::table('password_reset_codes')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'code' => $code,
+                'created_at' => Carbon::now()
+            ]
+        );
 
-        throw ValidationException::withMessages([
-            'email' => [trans($status)],
-        ]);
+        // Send the code via email
+        Mail::to($request->email)->send(new ResetPasswordCodeMail($code));
+
+        return response()->json([
+            'message' => 'Verification code sent to your email.'
+        ], 200);
     }
 
     // Reset Password
     public function resetPassword(Request $request)
     {
-        $request->validate([
-            'token' => 'required',
+       $request->validate([
             'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
+            'code' => 'required|numeric|digits:6',
+            'password' => 'required|string|confirmed',
         ]);
 
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password),
-                ])->save();
+        // Check if the code exists and is valid (within 15 minutes)
+        $resetCode = DB::table('password_reset_codes')
+                        ->where('email', $request->email)
+                        ->where('code', $request->code)
+                        ->where('created_at', '>=', Carbon::now()->subMinutes(15))
+                        ->first();
 
-                // Revoke all tokens for security
-                $user->tokens()->delete();
-            }
-        );
-
-        if ($status == Password::PASSWORD_RESET) {
-            return response()->json(['message' => 'Password has been reset successfully.'], 200);
+        if (!$resetCode) {
+            return response()->json([
+                'message' => 'Invalid or expired code.'
+            ], 422);
         }
 
-        return response()->json(['message' => __($status)], 400);
+        // Reset the password
+        $user = User::where('email', $request->email)->first();
+        if ($user) {
+            $user->update(['password' => bcrypt($request->password)]);
+            DB::table('password_reset_codes')->where('email', $request->email)->delete(); // delete used code
+            return response()->json([
+                'message' => 'Password reset successfully.'
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'User not found.'
+        ], 404);
     }
 
     public function userPermission()
@@ -206,6 +227,42 @@ class AuthUserController extends Controller
         return response()->json([
             'message' => 'No user or admin authenticated',
         ], 404);
+    }
+
+    public function ValidateToken(Request $request)
+    {
+        // Retrieve the token from the Authorization header
+        $token = $request->bearerToken();
+
+        if (!$token) {
+            return response()->json([
+                'succeed' => false,
+                'message' => 'No token provided'
+            ], 401);
+        }
+
+        // Find the token in the personal_access_tokens table
+        $tokenData = PersonalAccessToken::findToken($token);
+
+        if (!$tokenData) {
+            return response()->json([
+                'succeed' => false,
+                'message' => 'Invalid token'
+            ], 401);
+        }
+
+        // Check if token has been revoked (via logout, etc.)
+        if ($tokenData->revoked) {
+            return response()->json([
+                'succeed' => false,
+                'message' => 'Token has been revoked',
+            ], 401);
+        }
+        // Since Sanctum tokens don't expire by default, simply return success
+        return response()->json([
+            'succeed' => true,
+            'message' => 'Token is valid',
+        ], 200);
     }
 
 
