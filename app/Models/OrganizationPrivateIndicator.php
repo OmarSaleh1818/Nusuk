@@ -16,5 +16,17 @@ class OrganizationPrivateIndicator extends Model
         return $this->belongsTo(User::class, 'user_id','id');
 
     }
+
+    public function opportunityData() {
+
+        return $this->belongsTo(OpportunityData::class, 'opportunityData_id','id');
+
+    }
+
+    public function privateIndicator() {
+
+        return $this->belongsTo(PrivateIndicator::class, 'private_indicator_id','id');
+
+    }
     
 }

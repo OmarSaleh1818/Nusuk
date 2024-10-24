@@ -186,8 +186,8 @@ class AuthUserController extends Controller
             if ($user->user_permission == 1) {
                 return response()->json([
                     'succeed' => true,
-                    'message' => 'User permission fetched successfully',
-                    'data' => 'user'
+                    'message' => 'Organization permission fetched successfully',
+                    'data' => 'organization'
                 ]);
             } elseif ($user->user_permission == 2) {
                 return response()->json([

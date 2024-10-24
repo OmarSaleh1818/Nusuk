@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\User\PartnershipsController;
 use App\Http\Controllers\Api\User\AppreciationController;
 use App\Http\Controllers\Api\User\GovernanceController;
 use App\Http\Controllers\Api\User\ChallengesController;
+use App\Http\Controllers\Api\User\OrganizationIndicatorsController;
 use App\Http\Controllers\Api\Admin\AuthAdminController;
 use App\Http\Controllers\Api\Admin\NewsController;
 use App\Http\Controllers\Api\Admin\UserManagementController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Api\Admin\OpportunitiesController;
 use App\Http\Controllers\Api\Admin\ApproveController;
 use App\Http\Controllers\Api\Admin\QualitativeEvaluations;
 use App\Http\Controllers\Api\Admin\IndicatorsController;
+
 
 
 /*
@@ -241,6 +243,11 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         Route::get('/organization/instituational/challenges/view/{id}', [ChallengesController::class, 'InstituationalChallengesView']);
         Route::post('/organization/nstituational/challenges/store/{id}', [ChallengesController::class, 'InstituationalChallengesStore']);
         // -------------------- End Instituational challenges -------------------------*/
+
+        // -------------------------- Pivate Indicator ----------------------------------*/ 
+        Route::get('/organization/private/indicators', [OrganizationIndicatorsController::class, 'OrganizationPrivateIndicators']);
+        Route::post('/organization/private/indicators/store', [OrganizationIndicatorsController::class, 'OrganizationPrivateIndicatorsStore']);
+        // ----------------------- End Pivate Indicator ----------------------------------*/ 
     });
 
 
