@@ -77,7 +77,10 @@ class AuthUserController extends Controller
         ]);
        
         if($user){
-            return response()->json(['message' => 'User Created Successfully', 201]);
+            return response()->json([
+                'succeed' => true,
+                'message' => 'User Created Successfully',
+                201]);
         }else{
             return response()->json(['message' => 'Failed to register', 500]);
         }
@@ -88,10 +91,12 @@ class AuthUserController extends Controller
         $user = auth()->user()->tokens()->delete();
         if($user){
             return response()->json([
+                'succeed' => true,
                 'message' => 'Logged out successfully'
             ]);
         }else{
             return response()->json([
+                'succeed' => false,
                 'message' => 'Failed to logout'
             ]);
         }
@@ -103,11 +108,13 @@ class AuthUserController extends Controller
         $user = auth()->user();
         if($user){
             return response()->json([
+                'succeed' => true,
                 'message' => 'User fetched successfully',
                 'user' => $user
             ]);
         }else{
             return response()->json([
+                'succeed' => false,
                 'message' => 'Failed to fetch user'
             ]);
         }
@@ -131,11 +138,18 @@ class AuthUserController extends Controller
             ]
         );
 
+        $data = [
+            'email' => $request->email,
+            'code' => $code,
+        ];
+
         // Send the code via email
         Mail::to($request->email)->send(new ResetPasswordCodeMail($code));
 
         return response()->json([
-            'message' => 'Verification code sent to your email.'
+            'succeed' => true,
+            'message' => 'Verification code sent to your email.',
+            'data' => $data
         ], 200);
     }
 
@@ -167,11 +181,13 @@ class AuthUserController extends Controller
             $user->update(['password' => bcrypt($request->password)]);
             DB::table('password_reset_codes')->where('email', $request->email)->delete(); // delete used code
             return response()->json([
+                'succeed' => true,
                 'message' => 'Password reset successfully.'
             ], 200);
         }
 
         return response()->json([
+            'succeed' => false,
             'message' => 'User not found.'
         ], 404);
     }
@@ -218,6 +234,7 @@ class AuthUserController extends Controller
                 ]);
             } else {
                 return response()->json([
+                    'succeed' => false,
                     'message' => 'Failed to fetch user',
                 ], 404); 
             }
@@ -262,6 +279,7 @@ class AuthUserController extends Controller
         return response()->json([
             'succeed' => true,
             'message' => 'Token is valid',
+            'data' => $token
         ], 200);
     }
 

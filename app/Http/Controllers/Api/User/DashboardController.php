@@ -25,14 +25,10 @@ class DashboardController extends Controller
                 'opportunity_data_count' => OpportunityData::where('opportunity_id', $opportunity->id)->count(),
             ];
         }
-        $user = Auth::user();
         return response()->json([
             'succeed' => true,
             'message' => 'Dashboard View',
-            'data' => [
-                'opportunities' => $opportunityData,
-                'user' => $user,
-            ],
+            'data' => $opportunityData
         ]);
     }
 
