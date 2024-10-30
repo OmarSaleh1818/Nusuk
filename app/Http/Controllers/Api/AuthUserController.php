@@ -208,8 +208,14 @@ class AuthUserController extends Controller
             } elseif ($admin->status == 1) {
                 return response()->json([
                     'succeed' => true,
-                    'message' => 'Admin permission fetched successfully',
+                    'message' => 'Super permission fetched successfully',
                     'data' => 'super'
+                ]);
+            }  elseif ($admin->status == 2) {
+                return response()->json([
+                    'succeed' => true,
+                    'message' => 'Super User permission fetched successfully',
+                    'data' => 'user_super'
                 ]);
             } else {
                 return response()->json([
@@ -281,6 +287,38 @@ class AuthUserController extends Controller
             'message' => 'Token is valid',
             'data' => $token
         ], 200);
+    }
+
+    public function UserName(){
+        $admin = auth()->guard('api')->user(); 
+        $user = auth()->guard('sanctum')->user();
+
+        if ($admin) {
+            return response()->json([
+                'succeed' => true,
+                'message' => 'User Name fetched successfully',
+                'data' => [
+                    'email' => $admin->email,
+                    'name' => $admin->name
+                ]
+            ]);
+        }
+
+    
+        if ($user) {
+            return response()->json([
+                'succeed' => true,
+                'message' => 'User Name fetched successfully',
+                'data' => [
+                    'email' => $user->email,
+                    'name' => $user->name
+                ]
+            ]);
+        } 
+       
+        return response()->json([
+            'message' => 'No user or admin authenticated',
+        ], 404);
     }
 
 

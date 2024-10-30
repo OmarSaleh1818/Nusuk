@@ -115,6 +115,7 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
     Route::post('/reset-password', [AuthUserController::class, 'resetPassword']);
     
     Route::get('/user/permission', [AuthUserController::class, 'userPermission']);
+    Route::get('/user/name', [AuthUserController::class, 'UserName']);
     Route::get('/auth/validate-token', [AuthUserController::class, 'ValidateToken']);
     
     Route::get('/', [DashboardController::class, 'index'])->name('index');

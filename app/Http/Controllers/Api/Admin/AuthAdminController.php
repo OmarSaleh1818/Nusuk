@@ -63,19 +63,6 @@ class AuthAdminController extends Controller
 
     public function AdminRegisterStore(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:admins',
-            'mobile_number' => 'required',
-            'job_title' => 'required',
-            'user_name' => 'required',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ],[
-            'name.required' => 'اسم المستخدم مطلوب',
-            'email.required' => 'الايميل مطلوب',
-            'password.required' => 'كلمة المرور مطلوب',
-            'password_confirmation.required' => 'تأكيد كلمة المرور مطلوب',
-        ]);
 
         $admin = Admin::create([
             'name' => $request->name,
