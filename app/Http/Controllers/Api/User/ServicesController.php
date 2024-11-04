@@ -42,7 +42,7 @@ class ServicesController extends Controller
                 'people_dead' => $servicesSlide ? (bool)$servicesSlide->people_dead : false,
             ];
         }
-        
+
         return response()->json([
             'succeed' => true,
             'message' => 'Services Slide data fetched successfully',
@@ -81,14 +81,14 @@ class ServicesController extends Controller
             'message' => 'Services Slide data updated successfully',
             'data' => $slideData,
         ]);
-        
+
     }
 
     // Serveices By Target
     public function OrganizationServicesByTarget()
     {
         $user_id = Auth::user()->id;
-       
+
         // Get the targets data
         $targets = LocalTarget::all();
         $targetData = [];
@@ -119,7 +119,7 @@ class ServicesController extends Controller
             'message' => 'Services Target data fetched successfully',
             'data' => $targetData,
         ]);
-    
+
     }
 
     public function ServicesByTargetStore(Request $request)
@@ -154,13 +154,13 @@ class ServicesController extends Controller
         $stages = Stage::take(5)->with('businesses')->get();
         $indicators = Indicator::all();
         $serviceImplemented = ServiceImplemented::where('user_id', $user_id)->get();
-        
+
         $response = [];
 
         foreach ($stages as $stage) {
             foreach ($stage->businesses as $business) {
                 $businessData = [
-            
+
                     'indicators'    => []
                 ];
 
@@ -171,7 +171,7 @@ class ServicesController extends Controller
                                                 ->first();
 
                     $businessData['indicators'][] = [
-                    
+
                         'seasonal_service' => $existing ? $existing->seasonal_service : null,
                         'ongoing_service'  => $existing ? $existing->ongoing_service : null,
                         'initiatives'      => $existing ? $existing->initiatives : null,
@@ -193,7 +193,7 @@ class ServicesController extends Controller
     public function OrganizationServicesSecond()
     {
         $user_id = Auth::user()->id;
-    
+
         $stages = Stage::skip(5)->take(2)->with('businesses')->get();
         $indicators = Indicator::all(); // Get all indicators
         $serviceImplemented = ServiceImplemented::where('user_id', $user_id)->get();
@@ -202,13 +202,13 @@ class ServicesController extends Controller
         foreach ($stages as $stage) {
             foreach ($stage->businesses as $business) {
                 $indicatorData = [];
-                
+
                 foreach ($indicators as $indicator) {
                     // Check if the service was implemented by the user for this business and indicator
                     $existing = $serviceImplemented->where('business_id', $business->id)
                                                 ->where('indicator_id', $indicator->id)
                                                 ->first();
-                    
+
                     $indicatorData[] = [
                         'seasonal_service'  => $existing ? $existing->seasonal_service : null,
                         'ongoing_service'   => $existing ? $existing->ongoing_service : null ,
@@ -216,10 +216,10 @@ class ServicesController extends Controller
                         'events'            => $existing ? $existing->events : null,
                     ];
                 }
-                
+
                 if (!empty($indicatorData)) {
                     $response[] = [
-                        'indicators'    => $indicatorData,  
+                        'indicators'    => $indicatorData,
                     ];
                 }
             }
@@ -234,57 +234,52 @@ class ServicesController extends Controller
 
 
     public function ServicesStore(Request $request)
-    {
-        $user_id = Auth::user()->id;
+{
+    $user_id = Auth::user()->id;
 
-        // ------------- Service Implemented Data -------------
-        $seasonal_services = $request->input('seasonal_service', []);
-        $ongoing_services = $request->input('ongoing_service', []);
-        $initiatives = $request->input('initiatives', []);
-        $events = $request->input('events', []);
-        $business_ids = $request->input('business_id', []);
-        $indicator_ids = $request->input('indicator_id', []);
+    // ------------- Service Implemented Data -------------
+    $seasonal_services = $request->input('seasonal_service', []);
+    $ongoing_services = $request->input('ongoing_service', []);
+    $initiatives = $request->input('initiatives', []);
+    $events = $request->input('events', []);
 
-        foreach ($business_ids as $index => $business_id) {
-            $indicator_id = $indicator_ids[$index] ?? null;
+    foreach ($seasonal_services as $index => $seasonal_service) {
+        // Using the index to access other service fields
+        $ongoing_service = $ongoing_services[$index] ?? null;
+        $initiative = $initiatives[$index] ?? null;
+        $event = $events[$index] ?? null;
 
-            $seasonal_service = $seasonal_services[$index] ?? null;
-            $ongoing_service = $ongoing_services[$index] ?? null;
-            $initiative = $initiatives[$index] ?? null;
-            $event = $events[$index] ?? null;
-            // Check if at least one field is not null or empty
-            if (
-                !is_null($seasonal_service) ||
-                !is_null($ongoing_service) ||
-                !is_null($initiative) ||
-                !is_null($event)
-            ) {
-                // Insert or update the record with provided values
-                ServiceImplemented::updateOrCreate(
-                    [
-                        'user_id' => $user_id,
-                        'business_id' => $business_id,
-                        'indicator_id' => $indicator_id,
-                    ],
-                    [
-                        'seasonal_service' => $seasonal_service,
-                        'ongoing_service' => $ongoing_service,
-                        'initiatives' => $initiative,
-                        'events' => $event,
-                    ]
-                );
-            }
+        // Check if at least one field is not null or empty
+        if (
+            !is_null($seasonal_service) ||
+            !is_null($ongoing_service) ||
+            !is_null($initiative) ||
+            !is_null($event)
+        ) {
+            // Insert or update the record with provided values
+            ServiceImplemented::updateOrCreate(
+                [
+                    'user_id' => $user_id,
+                    // Remove the business_id and indicator_id
+                ],
+                [
+                    'seasonal_service' => $seasonal_service,
+                    'ongoing_service' => $ongoing_service,
+                    'initiatives' => $initiative,
+                    'events' => $event,
+                ]
+            );
         }
-        $serviceImplementedData = ServiceImplemented::where('user_id', $user_id)->get();
-
-        
-        return response()->json([
-            'succeed' => true,
-            'message' => 'Services data updated successfully',
-            'data' => $serviceImplementedData,
-        ]);
-        
     }
+
+    $serviceImplementedData = ServiceImplemented::where('user_id', $user_id)->get();
+
+    return response()->json([
+        'succeed' => true,
+        'message' => 'Services data updated successfully',
+        'data' => $serviceImplementedData,
+    ]);
+}
 
     // Serveices for Satisfaction
     public function OrganizationServicesBySatisfaction()

@@ -94,7 +94,7 @@ class AdminController extends Controller
         Admin::insert([
             'name' => $request->name,
             'email' => $request->email,
-            'user_name' => $request->user_name,
+
             'mobile_number' => $request->mobile_number,
             'job_title' => $request->job_title,
             'password' => Hash::make($request->password),
@@ -111,5 +111,27 @@ class AdminController extends Controller
         $opportunities = Opportunity::all();
         return view('admin.admin_management', compact('managements', 'opportunities'));
     }
+
+
+    public function DeleteAdmin($admin_id)
+{
+    // Find the admin by ID
+    $admin = Admin::find($admin_id);
+
+    if (!$admin) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Admin not found'
+        ], 404);
+    }
+
+    // Delete the admin
+    $admin->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Admin deleted successfully'
+    ], 200);
+}
 
 }
