@@ -39,73 +39,76 @@ use App\Http\Controllers\Api\Admin\IndicatorsController;
 */
 
 /* -------------------- Admin -------------------------*/
+// Admin Authentication Routes
 Route::post('/admin/login/owner', [AuthAdminController::class, 'Login']);
+Route::post('/admin/register/store', [AuthAdminController::class, 'AdminRegisterStore']); // Accessible without authentication
+Route::delete('/admin/delete/{admin_id}', [AuthAdminController::class, 'DeleteAdmin'])->name('admin.delete');
+
+// Protected Admin Routes
 Route::prefix('admin')->middleware('auth:api')->group(function () {
 
     Route::get('/dashboard', [AuthAdminController::class, 'Dashboard']);
     Route::get('/management', [AuthAdminController::class, 'AdminManagement']);
-    Route::post('/register/store', [AuthAdminController::class, 'AdminRegisterStore']);
     Route::get('/logout', [AuthAdminController::class, 'AdminLogout']);
     Route::get('/permission', [AuthAdminController::class, 'AdminPermission']);
 
     /* -------------------- News -------------------------*/
-        Route::get('/news/view', [NewsController::class, 'NewsView']);
-        Route::get('/news/add', [NewsController::class, 'NewsAdd']);
-        Route::post('/news/store', [NewsController::class, 'NewsStore']);
-        Route::get('/news/hide/{id}', [NewsController::class, 'NewsHide']);
-        Route::get('/news/show/{id}', [NewsController::class, 'NewsShow']);
-        Route::get('/news/edit/{id}', [NewsController::class, 'NewsEdit']);
-        Route::post('/news/update/{id}', [NewsController::class, 'NewsUpdate']);
-        Route::get('/news/delete/{id}', [NewsController::class, 'NewsDelete']);
+    Route::get('/news/view', [NewsController::class, 'NewsView']);
+    Route::get('/news/add', [NewsController::class, 'NewsAdd']);
+    Route::post('/news/store', [NewsController::class, 'NewsStore']);
+    Route::get('/news/hide/{id}', [NewsController::class, 'NewsHide']);
+    Route::get('/news/show/{id}', [NewsController::class, 'NewsShow']);
+    Route::get('/news/edit/{id}', [NewsController::class, 'NewsEdit']);
+    Route::post('/news/update/{id}', [NewsController::class, 'NewsUpdate']);
+    Route::get('/news/delete/{id}', [NewsController::class, 'NewsDelete']);
     /* -------------------- End News -------------------------*/
 
     /* -------------------- User Management -------------------------*/
-        Route::get('/user/management', [UserManagementController::class, 'UserManagement']);
-        Route::post('/user/bulkAction', [UserManagementController::class, 'UserBulkAction']);
-        Route::get('/user/eye/{id}', [UserManagementController::class, 'UserEye']);
+    Route::get('/user/management', [UserManagementController::class, 'UserManagement']);
+    Route::post('/user/bulkAction', [UserManagementController::class, 'UserBulkAction']);
+    Route::get('/user/eye/{id}', [UserManagementController::class, 'UserEye']);
 
-        Route::get('/organization/basic/{id}', [UserManagementController::class, 'AdminOrganizationBasic']);
-        Route::get('/organization/about/{id}', [UserManagementController::class, 'AdminOrganizationAbout']);
-        Route::get('/organization/financial/{id}', [UserManagementController::class, 'AdminOrganizationFinancial']);
-        Route::get('/organization/services/{id}', [UserManagementController::class, 'AdminOrganizationServices']);
-        Route::get('/organization/staff/{id}', [UserManagementController::class, 'AdminOrganizationStaff']);
-        Route::get('/organization/volunteers/{id}', [UserManagementController::class, 'AdminOrganizationVolunteers']);
+    Route::get('/organization/basic/{id}', [UserManagementController::class, 'AdminOrganizationBasic']);
+    Route::get('/organization/about/{id}', [UserManagementController::class, 'AdminOrganizationAbout']);
+    Route::get('/organization/financial/{id}', [UserManagementController::class, 'AdminOrganizationFinancial']);
+    Route::get('/organization/services/{id}', [UserManagementController::class, 'AdminOrganizationServices']);
+    Route::get('/organization/staff/{id}', [UserManagementController::class, 'AdminOrganizationStaff']);
+    Route::get('/organization/volunteers/{id}', [UserManagementController::class, 'AdminOrganizationVolunteers']);
 
-        Route::get('/organization/sectoral/challenges/{id}', [UserManagementController::class, 'SectoralChallenges']);
-        Route::get('/organization/instituational/challenges/{id}', [UserManagementController::class, 'InstituationalChallenges']);
+    Route::get('/organization/sectoral/challenges/{id}', [UserManagementController::class, 'SectoralChallenges']);
+    Route::get('/organization/instituational/challenges/{id}', [UserManagementController::class, 'InstituationalChallenges']);
     /* -------------------- End User Management -------------------------*/
 
     /* -------------------- Opportunities -------------------------*/
-        Route::get('/opportunities/view/{id}', [OpportunitiesController::class, 'SectoralOpportunities']);
-        Route::post('/opportunity/bulkAction', [OpportunitiesController::class, 'OpportunityBulkAction']);
-        Route::get('/opportunity/add', [OpportunitiesController::class, 'AddOpportunity']);
-        Route::post('/opportunity/store/{id}', [OpportunitiesController::class, 'OpportunityStore']);
-        Route::get('/opportunity/eye/{id}', [OpportunitiesController::class, 'OpportunityEye']);
-        Route::post('/opportunity/update/{id}', [OpportunitiesController::class, 'OpportunityUpdate']);
-        Route::get('/opportunity/report/{id}', [OpportunitiesController::class, 'OpportunityReport']);
+    Route::get('/opportunities/view/{id}', [OpportunitiesController::class, 'SectoralOpportunities']);
+    Route::post('/opportunity/bulkAction', [OpportunitiesController::class, 'OpportunityBulkAction']);
+    Route::get('/opportunity/add', [OpportunitiesController::class, 'AddOpportunity']);
+    Route::post('/opportunity/store/{id}', [OpportunitiesController::class, 'OpportunityStore']);
+    Route::get('/opportunity/eye/{id}', [OpportunitiesController::class, 'OpportunityEye']);
+    Route::post('/opportunity/update/{id}', [OpportunitiesController::class, 'OpportunityUpdate']);
+    Route::get('/opportunity/report/{id}', [OpportunitiesController::class, 'OpportunityReport']);
     /* -------------------- End Opportunities -------------------------*/
 
     /* -------------------- Approval Section -------------------------*/
-        Route::get('/opportunity/approve/{id}', [ApproveController::class, 'AdminApprove']);
-        Route::get('/opportunity/reevaluation/{id}', [ApproveController::class, 'AdminReevaluation']);
-        Route::get('/super/opportunity/approve/{id}', [ApproveController::class, 'SuperApprove']);
-        Route::get('/super/opportunity/not/approve/{id}', [ApproveController::class, 'SuperNotApprove']);
+    Route::get('/opportunity/approve/{id}', [ApproveController::class, 'AdminApprove']);
+    Route::get('/opportunity/reevaluation/{id}', [ApproveController::class, 'AdminReevaluation']);
+    Route::get('/super/opportunity/approve/{id}', [ApproveController::class, 'SuperApprove']);
+    Route::get('/super/opportunity/not/approve/{id}', [ApproveController::class, 'SuperNotApprove']);
     /* -------------------- End Approval Section -------------------------*/
 
     /* --------------------- Qualitative Evaluations -------------------------*/
-        Route::get('/qualitative/evaluations', [QualitativeEvaluations::class, 'QualitativeEvaluation']);
-        Route::post('/qualitative/evaluations/store', [QualitativeEvaluations::class, 'OrganizationEvaluationStore']);
-        Route::get('/qualitative/evaluations/result', [QualitativeEvaluations::class, 'QualitativeEvaluationResult']);
+    Route::get('/qualitative/evaluations', [QualitativeEvaluations::class, 'QualitativeEvaluation']);
+    Route::post('/qualitative/evaluations/store', [QualitativeEvaluations::class, 'OrganizationEvaluationStore']);
+    Route::get('/qualitative/evaluations/result', [QualitativeEvaluations::class, 'QualitativeEvaluationResult']);
     /* --------------------- End Qualitative Evaluations  -------------------------*/
 
     /* --------------------- Private Indicators  -------------------------*/
-        Route::get('/private/indicators', [IndicatorsController::class, 'PrivateIndicators']);
-        Route::post('/private/indicators/store', [IndicatorsController::class, 'PrivateIndicatorsStore']);
+    Route::get('/private/indicators', [IndicatorsController::class, 'PrivateIndicators']);
+    Route::post('/private/indicators/store', [IndicatorsController::class, 'PrivateIndicatorsStore']);
     /* --------------------- End Private Indicators  -------------------------*/
 
-
-
 });
+
 /* -------------------- End Admin -------------------------*/
 
 /* -------------------- Main User -------------------------*/
@@ -113,11 +116,11 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
     Route::post('/register', [AuthUserController::class, 'register']);
     Route::post('/forgot-password', [AuthUserController::class, 'forgotPassword']);
     Route::post('/reset-password', [AuthUserController::class, 'resetPassword']);
-    
+
     Route::get('/user/permission', [AuthUserController::class, 'userPermission']);
     Route::get('/user/name', [AuthUserController::class, 'UserName']);
     Route::get('/auth/validate-token', [AuthUserController::class, 'ValidateToken']);
-    
+
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::post('/contact-us', [ContactUsController::class, 'submit']);
     Route::get('/news/archive', [DashboardController::class, 'NewsArchive']);
@@ -126,7 +129,7 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthUserController::class, 'logout'])->middleware('auth:sanctum');
         Route::get('/user', [AuthUserController::class, 'user'])->middleware('auth:sanctum');
-        
+
 
         Route::get('/organization/dashboard', [DashboardController::class, 'DashboardView']);
 
@@ -161,7 +164,7 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         Route::get('/organization/services/satisfaction', [ServicesController::class, 'OrganizationServicesBySatisfaction']);
         Route::post('/organization/services/satisfaction/store', [ServicesController::class, 'ServicesBySatisfactionStore']);
         /* -------------------- End Services Data -------------------------*/
-        
+
         /* -------------------- staff Data -------------------------*/
         Route::get('/organization/staff/represent/ceo', [StaffController::class, 'OrganizationStaffRepresentCEO']);
         Route::get('/organization/staff/represent/notceo', [StaffController::class, 'OrganizationStaffRepresentNotCEO']);
@@ -246,16 +249,16 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         Route::post('/organization/nstituational/challenges/store/{id}', [ChallengesController::class, 'InstituationalChallengesStore']);
         // -------------------- End Instituational challenges -------------------------*/
 
-        // -------------------------- Pivate Indicator ----------------------------------*/ 
+        // -------------------------- Pivate Indicator ----------------------------------*/
         Route::get('/organization/private/indicators', [OrganizationIndicatorsController::class, 'OrganizationPrivateIndicators']);
         Route::post('/organization/private/indicators/store', [OrganizationIndicatorsController::class, 'OrganizationPrivateIndicatorsStore']);
-        // ----------------------- End Pivate Indicator ----------------------------------*/ 
+        // ----------------------- End Pivate Indicator ----------------------------------*/
     });
 
 
 
 
-/* -------------------- End Main User -------------------------*/   
+/* -------------------- End Main User -------------------------*/
 
 
 

@@ -10,34 +10,54 @@ use Carbon\Carbon;
 
 class NewsController extends Controller
 {
-    
+
     public function NewsView()
     {
-        $news = News::orderBy('id', 'DESC')->get();
-        if ($news->isNotEmpty()) {
+        try {
+            $news = News::orderBy('id', 'DESC')->get();
+            if ($news->isNotEmpty()) {
+                return response()->json([
+                    'succeed' => true,
+                    'message' => 'News view',
+                    'data' => $news,
+                ], 200);
+            } else {
+                return response()->json([
+                    'succeed' => false,
+                    'message' => 'No news found',
+                    'data' => [],
+                ], 404);
+            }
+
+        } catch (\Exception $e) {
             return response()->json([
-                'succeed' => true, 
-                'message' => 'News view',
-                'data' => $news,
-            ], 200);
-        } else {
-            return response()->json([
-                'succeed' => false,
-                'message' => 'No news found',
-                'data' => [],
-            ], 404);
+                'message' => 'An error occurred during NewsView',
+                'error' => $e->getMessage(),
+                'succeed' => false
+            ], 500);
         }
     }
 
     public function NewsAdd()
     {
-        return response()->json([
-            'message' => 'News add'
-        ], 200);
+        try {
+            return response()->json([
+                'message' => 'News add'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred during NewsAdd',
+                'error' => $e->getMessage(),
+                'succeed' => false
+            ], 500);
+        }
+
     }
 
     public function NewsStore(Request $request)
     {
+        try {
         // Validate the request
         $request->validate([
             'news_title' => 'required',
@@ -75,113 +95,166 @@ class NewsController extends Controller
                 'succeed' => false,
                 'message' => 'News not added'
             ], 401);
-        } 
+        }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred during News',
+                'error' => $e->getMessage(),
+                'succeed' => false
+            ], 500);
+        }
     }
 
     public function NewsHide($id)
     {
-        $news = News::find($id);
-        $news->status_id = 2;
-        if ($news) {
-            $news->save();
+        try {
+            $news = News::find($id);
+            $news->status_id = 2;
+            if ($news) {
+                $news->save();
+                return response()->json([
+                    'succeed' => true,
+                    'message' => 'News hidden successfully',
+                    'data' => $news,
+                ], 200);
+            } else {
+                return response()->json([
+                    'succeed' => false,
+                    'message' => 'News not found',
+                ], 404);
+            }
+
+        } catch (\Exception $e) {
             return response()->json([
-                'succeed' => true, 
-                'message' => 'News hidden successfully',
-                'data' => $news,
-            ], 200);
-        } else {
-            return response()->json([
-                'succeed' => false,
-                'message' => 'News not found',
-            ], 404);
+                'message' => 'An error occurred during NewsHide',
+                'error' => $e->getMessage(),
+                'succeed' => false
+            ], 500);
         }
     }
 
     public function NewsShow($id)
     {
-        $news = News::find($id);
-        if ($news) {
-            $news->status_id = 1;
-            $news->save();
+        try {
+            $news = News::find($id);
+            if ($news) {
+                $news->status_id = 1;
+                $news->save();
+                return response()->json([
+                    'succeed' => true,
+                    'message' => 'News hidden successfully',
+                    'data' => $news,
+                ], 200);
+            } else {
+                return response()->json([
+                    'succeed' => false,
+                    'message' => 'News not found',
+                ], 404);
+            }
+
+        } catch (\Exception $e) {
             return response()->json([
-                'succeed' => true, 
-                'message' => 'News hidden successfully',
-                'data' => $news,
-            ], 200);
-        } else {
-            return response()->json([
-                'succeed' => false,
-                'message' => 'News not found',
-            ], 404);
+                'message' => 'An error occurred during NewsShow',
+                'error' => $e->getMessage(),
+                'succeed' => false
+            ], 500);
         }
     }
 
     public function NewsEdit($id)
     {
-        $news = News::find($id);
-        if ($news) {
+        try {
+            $news = News::find($id);
+            if ($news) {
+                return response()->json([
+                    'succeed' => true,
+                    'message' => 'News found successfully',
+                    'data' => $news,
+                ], 200);
+            } else {
+                return response()->json([
+                    'succeed' => false,
+                    'message' => 'News not found',
+                ], 404);
+            }
+
+        } catch (\Exception $e) {
             return response()->json([
-                'succeed' => true,
-                'message' => 'News found successfully',
-                'data' => $news,
-            ], 200);
-        } else {
-            return response()->json([
-                'succeed' => false,
-                'message' => 'News not found',
-            ], 404);
+                'message' => 'An error occurred during NewsEdit',
+                'error' => $e->getMessage(),
+                'succeed' => false
+            ], 500);
         }
     }
-    
+
     public function NewsUpdate(Request $request, $id)
     {
-        $file = $request->file('news_image');
-        if ($file) {
-            $filePath = $file->move("upload", $file->getClientOriginalName());
-            if ($filePath) {
+        try {
+            $file = $request->file('news_image');
+            if ($file) {
+                $filePath = $file->move("upload", $file->getClientOriginalName());
+                if ($filePath) {
+                    $news = News::find($id);
+                    $news->news_title = $request->news_title;
+                    $news->short_description = $request->short_description;
+                    $news->long_description = $request->long_description;
+                    $news->news_image = $filePath;
+                    $news->save();
+                    return response()->json([
+                        'succeed' => true,
+                        'message' => 'News updated successfully',
+                        'data' => $news,
+                    ], 200);
+                }
+            } else {
                 $news = News::find($id);
                 $news->news_title = $request->news_title;
                 $news->short_description = $request->short_description;
                 $news->long_description = $request->long_description;
-                $news->news_image = $filePath;
                 $news->save();
                 return response()->json([
                     'succeed' => true,
                     'message' => 'News updated successfully',
-                    'data' => $news,
+                    'news' => $news,
                 ], 200);
             }
-        } else {
-            $news = News::find($id);
-            $news->news_title = $request->news_title;
-            $news->short_description = $request->short_description;
-            $news->long_description = $request->long_description;
-            $news->save();
+
+        } catch (\Exception $e) {
             return response()->json([
-                'succeed' => true,
-                'message' => 'News updated successfully',
-                'news' => $news,
-            ], 200);
+                'message' => 'An error occurred during registration',
+                'error' => $e->getMessage(),
+                'succeed' => false
+            ], 500);
         }
     }
 
     public function NewsDelete($id)
     {
-        $news = News::find($id);
-        if ($news) {
-            $news->delete();
+        try {
+
+            $news = News::find($id);
+            if ($news) {
+                $news->delete();
+                return response()->json([
+                    'succeed' => true,
+                    'message' => 'News deleted successfully'
+                ], 200);
+            } else {
+                return response()->json([
+                    'succeed' => false,
+                    'message' => 'News not found'
+                ], 404);
+            }
+        } catch (\Exception $e) {
             return response()->json([
-                'succeed' => true,
-                'message' => 'News deleted successfully'
-            ], 200);
-        } else {
-            return response()->json([
-                'succeed' => false,
-                'message' => 'News not found'
-            ], 404);
+                'message' => 'An error occurred during registration',
+                'error' => $e->getMessage(),
+                'succeed' => false
+            ], 500);
         }
     }
-            
+
 
 
 
