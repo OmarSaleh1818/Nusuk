@@ -288,62 +288,66 @@ class ServicesController extends Controller
 
 
     public function ServicesStore(Request $request)
-{
+    {
+        try {
+            $user_id = Auth::user()->id;
 
-    try {
-        $user_id = Auth::user()->id;
+            // ------------- Service Implemented Data -------------
+            $seasonal_services = $request->input('seasonal_service', []);
+            $ongoing_services = $request->input('ongoing_service', []);
+            $initiatives = $request->input('initiatives', []);
+            $events = $request->input('events', []);
+            $business_ids = $request->input('business_id', []);
+            $indicator_ids = $request->input('indicator_id', []);
 
-        // ------------- Service Implemented Data -------------
-        $seasonal_services = $request->input('seasonal_service', []);
-        $ongoing_services = $request->input('ongoing_service', []);
-        $initiatives = $request->input('initiatives', []);
-        $events = $request->input('events', []);
+            foreach ($business_ids as $index => $business_id) {
+                $indicator_id = $indicator_ids[$index] ?? null;
 
-        foreach ($seasonal_services as $index => $seasonal_service) {
-            // Using the index to access other service fields
-            $ongoing_service = $ongoing_services[$index] ?? null;
-            $initiative = $initiatives[$index] ?? null;
-            $event = $events[$index] ?? null;
-
-            // Check if at least one field is not null or empty
-            if (
-                !is_null($seasonal_service) ||
-                !is_null($ongoing_service) ||
-                !is_null($initiative) ||
-                !is_null($event)
-            ) {
-                // Insert or update the record with provided values
-                ServiceImplemented::updateOrCreate(
-                    [
-                        'user_id' => $user_id,
-                        // Remove the business_id and indicator_id
-                    ],
-                    [
-                        'seasonal_service' => $seasonal_service,
-                        'ongoing_service' => $ongoing_service,
-                        'initiatives' => $initiative,
-                        'events' => $event,
-                    ]
-                );
+                $seasonal_service = $seasonal_services[$index] ?? null;
+                $ongoing_service = $ongoing_services[$index] ?? null;
+                $initiative = $initiatives[$index] ?? null;
+                $event = $events[$index] ?? null;
+                // Check if at least one field is not null or empty
+                if (
+                    !is_null($seasonal_service) ||
+                    !is_null($ongoing_service) ||
+                    !is_null($initiative) ||
+                    !is_null($event)
+                ) {
+                    // Insert or update the record with provided values
+                    ServiceImplemented::updateOrCreate(
+                        [
+                            'user_id' => $user_id,
+                            'business_id' => $business_id,
+                            'indicator_id' => $indicator_id,
+                        ],
+                        [
+                            'seasonal_service' => $seasonal_service,
+                            'ongoing_service' => $ongoing_service,
+                            'initiatives' => $initiative,
+                            'events' => $event,
+                        ]
+                    );
+                }
             }
+            $serviceImplementedData = ServiceImplemented::where('user_id', $user_id)->get();
+
+
+            return response()->json([
+                'succeed' => true,
+                'message' => 'Services data updated successfully',
+                'data' => $serviceImplementedData,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred during ServicesStore',
+                'error' => $e->getMessage(),
+                'succeed' => false
+            ], 500);
         }
 
-        $serviceImplementedData = ServiceImplemented::where('user_id', $user_id)->get();
-
-        return response()->json([
-            'succeed' => true,
-            'message' => 'Services data updated successfully',
-            'data' => $serviceImplementedData,
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'An error occurred during ServicesStore',
-            'error' => $e->getMessage(),
-            'succeed' => false
-        ], 500);
     }
-}
 
     // Serveices for Satisfaction
     public function OrganizationServicesBySatisfaction()
